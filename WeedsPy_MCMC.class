@@ -1,0 +1,63 @@
+!# =============================================================================
+!#                               WeedsPy.class                                 #
+!#                     Author: Dr. Gwenllian M. Williams                       #       
+!# =============================================================================
+!# Creates synthetic spectra with Weeds, with parameters defined in WeedsPy.py #
+!# =============================================================================
+
+
+symbol quiet "sic message class s-i" ! Remove (-) infos (i) from screen (s)
+quiet
+
+!reset pen properties
+pen /w 3 /col 0 /dash 1
+
+! Read in the original spectrum
+file in 'peakname'
+find
+list
+get 1
+
+! Create the model spectrum
+modsource mdlfiles/temp_mdlfile.mdl 'telescope_diameter' /verbose /TCONT 't_cont'
+
+! Write the model spectrum to a .30m file
+retrieve TB_MODEL
+file out synthfiles/temp_synthfile.30m single /over
+write
+
+! Save model as fits file
+set ang sec
+file in synthfiles/temp_synthfile.30m
+find
+get f
+fits write synthfiles/temp_synthfile.fits /mode spectrum
+
+! Clear any plots
+cl
+
+
+! Optional: the following makes a plot, comments out a ! point to use it:
+!
+!
+!!! Make plot !!
+!
+!! Plot ranges defined in WeedsPy.py
+!cl
+!pen /w 3 /col 0
+!set mod x 'freq_lower' 'freq_upper'
+!box
+!greg\draw t -2 2 "Intensity (K)" 4 90 /box 4
+!
+!! Original spectrum
+!retrieve OBS		
+!spectrum
+!
+!pen /w 3 /col 1 /dash 1 ! Red pen
+!
+!! Synthetic spectrum
+!retrieve TB_MODEL
+!spectrum
+!
+!! Save
+!!hard figfiles/i'pixi'_j'pixj'_model.eps /dev eps color /over

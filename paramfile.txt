@@ -1,0 +1,22 @@
+catalog_name = my_cat.db		# Name of catalog to use in CLASS. Either CDMS, or JPL.
+molecule = CH3OH, vt=0-2		# Name of molecule to be modelled, as it appears in the catalog.
+source_size = 0.5				# Size of source, in arcseconds.
+freq_lower = 277300				# Lower frequency of spectral window, in MHz.
+freq_upper = 279100				# Upper frequency of spectral window, in MHz.
+mean_freq = 278200				# Mean frequency of the spectral window, in MHz.
+peak_spec = 40					# Peak of the brightest spectrum, in Kelvin.
+telescope_diameter = 588 		# diameter of telescope, in metres.
+bmaj = 0.603	 				# beam major axis, in arcseconds.
+bmin = 0.428					# beam minor axis, in arcseconds.
+rms_noise = 0.003				# RMS noise of the spectrum
+rms_noise_unit = Jy/beam		# Unit of the rms noise
+nburn = 200						# Number of emcee burn iterations
+nprod = 500						# Number of emcee production iterations
+nwalkers = 60					# Number of emcee walkers
+i0_col = 1.0					# Initial value of column density, in cm^-2
+col_base = 1e18					# The base of the column density value, in cm^-2
+i0_tex = 120					# Initial value of the excitation temperature, K
+i0_vsys = 60					# Initial value of the systemic velocity, in km/s
+i0_dV = 5.8						# Initial value of the fwhm velocity width, in km/s
+
+
