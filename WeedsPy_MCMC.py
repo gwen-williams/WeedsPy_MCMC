@@ -246,7 +246,7 @@ class WeedsPy_MCMC:
         samples = sampler.get_chain()
         
         # Get the flat samples
-        samples_flat = sampler.get_chain(discard=self.n_burn, thin=15, flat=True)
+        samples_flat = sampler.get_chain(discard=self.n_burn, flat=True) # thin=10
         np.savetxt('samples/samples_flatchain_i{0}_j{1}.csv'.format(ii,jj),samples_flat,delimiter=',')
         
             
@@ -269,7 +269,7 @@ class WeedsPy_MCMC:
         
         
         # Get the results
-        theta_max = samples[np.argmax(sampler.flatlnprobability)]
+        theta_max = samples_flat[np.argmax(sampler.flatlnprobability)]
         np.savetxt('theta_max/theta_max_flatlnprob_i{0}_j{1}.csv'.format(ii,jj),theta_max,delimiter=',')
 
 
@@ -358,6 +358,9 @@ class WeedsPy_MCMC:
             rms_kelvin = (1.222e3*self.rms_noise)/((mean_freq_GHz**2)*self.bmaj*self.bmin)
         elif self.rms_noise_unit == 'uJy/beam':
             rms_kelvin = (1.222e3*self.rms_noise/1e3)/((mean_freq_GHz**2)*self.bmaj*self.bmin)
+        else:
+            # If not any of the above units, assume it is already in Kelvin
+            rms_kelvin = rms_noise
         
         self.rms_noise = rms_kelvin
         self.rms_noise_unit = 'K'
@@ -465,6 +468,8 @@ if __name__ == '__main__':
         Sic.comm('let peakname '+peakname)
         Sic.comm('let t_cont '+str(tcont[ind]))
 
+        # Convert the noise to Kelvin:
+        tt.convert_noise_to_K()
         
         # don't need the x and y data defined in the self, can define them here
         samples, samples_flat, N, N_err_up, N_err_low, T, T_err_up, T_err_low, V, V_err_up, V_err_low, dV, dV_err_up, dV_err_low = tt.run_emcee(xdata,ydata,pixi[ind],pixj[ind])
@@ -476,8 +481,5 @@ if __name__ == '__main__':
             # Trace plot of chains
             tt.plot_chains(samples,pixi[ind],pixj[ind])
             
-
-            
-
-
-
+        
+  
