@@ -1,5 +1,7 @@
 # WeedsPy_MCMC
 
+Note: below refers to code in master branch. Code in current branch has had a significant re-work, and everything below may no longer be relevant. Re-write of readme will follow a full testing of the code's re-write
+
 Repository still a work in progress!
 
 ## Dependencies
