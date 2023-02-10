@@ -76,6 +76,11 @@ class WeedsPy_MCMC:
         bmaj,
         bmin,
         freq_unit,
+        freq_low,
+        freq_up,
+        peak_spec,
+        telescope_diameter,
+        
     ):
         
         
@@ -110,19 +115,35 @@ class WeedsPy_MCMC:
         self.bmaj = bmaj
         self.bmin = bmin
         self.freq_unit = freq_unit
-        
-        """
         self.freq_low = freq_low
         self.freq_up = freq_up
-        self.freq_mean = freq_mean
         self.peak_spec = peak_spec
         self.telescope_diameter = telescope_diameter
-        self.bmaj = bmaj
-        self.bmin = bmin
+
+
+    def set_gildas_variables(self):
         """
-
-
-
+        Function to set the variables in Gildas/CLASS
+        """
+        # Define CLASS variables:
+        Sic.comm('define character*128 peakname')
+        Sic.comm('define character*128 molecule')
+        Sic.comm('define real freq_lower')
+        Sic.comm('define real freq_upper')
+        Sic.comm('define real telescope_diameter')
+        Sic.comm('define character*128 t_cont')
+        
+        # Pass some of these input parameters to CLASS, and set some plot ranges:
+        Sic.comm('let molecule '+str(self.molecule_name))
+        Sic.comm('use in '+str(self.catalog_name))
+        Sic.comm('set unit f')
+        Sic.comm('let freq_lower '+str(self.freq_low))
+        Sic.comm('let freq_upper '+str(self.freq_up))
+        Sic.comm('set mod y -1 '+str(self.peak_spec))
+        Sic.comm('let telescope_diameter '+str(self.telescope_diameter))
+        
+        return
+        
 
     def main_emcee(self,xdata,ydata):
         
@@ -388,7 +409,12 @@ if __name__ == '__main__':
     bmaj = float(params['bmaj'])
     bmin = float(params['bmin'])
     freq_unit = str(params['freq_unit'])
+    freq_low = int(params['freq_lower'])
+    freq_up = int(params['freq_upper'])
+    peak_spec = int(params['peak_spec'])
+    telescope_diameter = int(params['telescope_diameter'])
     
+    # The power base of the column density. Easier to run emcee without the power and multiply it by this for the modelling
     column_base = 1e18
     
     # List of the priors, each pairs corresponds to upper and lower bounds for
@@ -418,31 +444,15 @@ if __name__ == '__main__':
                       mean_freq = mean_freq,
                       bmaj = bmaj,
                       bmin = bmin,
-                      freq_unit = freq_unit)
+                      freq_unit = freq_unit,
+                      freq_low = freq_low,
+                      freq_up = freq_up,
+                      peak_spec = peak_spec,
+                      telescope_diameter = telescope_diameter)
     
-    # Get other parameters from the parameter file not needed by the class:
-    freq_lower = int(params['freq_lower'])
-    freq_upper = int(params['freq_upper'])
-    peak_spec = int(params['peak_spec'])
-    telescope_diameter = int(params['telescope_diameter'])
-
     
-    # Define CLASS variables:
-    Sic.comm('define character*128 peakname')
-    Sic.comm('define character*128 molecule')
-    Sic.comm('define real freq_lower')
-    Sic.comm('define real freq_upper')
-    Sic.comm('define real telescope_diameter')
-    Sic.comm('define character*128 t_cont')
-    
-    # Pass some of these input parameters to CLASS, and set some plot ranges:
-    Sic.comm('let molecule '+str(molecule_name))
-    Sic.comm('use in '+str(catalog_name))
-    Sic.comm('set unit f')
-    Sic.comm('let freq_lower '+str(freq_lower))
-    Sic.comm('let freq_upper '+str(freq_upper))
-    Sic.comm('set mod y -1 '+str(peak_spec))
-    Sic.comm('let telescope_diameter '+str(telescope_diameter))
+    # Set the variables in GILDAS
+    tt.set_gildas_variables()
     
     
     # Flag to make plots or not (True = yes, False = no)
@@ -480,5 +490,7 @@ if __name__ == '__main__':
             # Trace plot of chains
             tt.plot_chains(samples,pixi[ind],pixj[ind])
             
+        
+        
         
        
