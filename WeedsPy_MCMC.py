@@ -329,13 +329,22 @@ class WeedsPy_MCMC:
         """
         labels=["column", "T_ex", "V_sys", "delta_V"]
         
-        fig = corner.corner(samples_flat, labels=labels)
+        fig = corner.corner(samples_flat, 
+                            labels=labels, 
+                            show_titles=True,
+                            plot_datapoints=True,
+                            quantiles=[0.16,0.5,0.84],
+                            smooth = 1.0,
+                            levels=(1-np.exp(-0.5),1-np.exp(-1.0),1-np.exp(-2.0)),
+                            label_kwargs={'fontsize':11},
+                            title_kwargs={'fontsize':11},
+                            )
         fig.savefig('plots/corner_i{0}_j{1}.pdf'.format(ii,jj),bbox_inches='tight')
         
         return
     
     
-    def plot_chain(self,samples,ii,jj):
+    def plot_chains(self,samples,ii,jj):
         """
         Function to make a plot of the walked chains
         """
@@ -488,6 +497,7 @@ if __name__ == '__main__':
             # Trace plot of chains
             tt.plot_chains(samples,pixi[ind],pixj[ind])
             
+        
         
         
        
