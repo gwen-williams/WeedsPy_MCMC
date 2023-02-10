@@ -6,7 +6,7 @@ Repository still a work in progress!
 
 WeedsPy_MCMC requires the installation of the GILDAS package, instructions for which can be found [here](https://www.iram.fr/IRAMFR/GILDAS/gildasli2.html). 
 
-These scripts have been tested in Python 3.9.9 only.
+These scripts have been tested in Python 3.9.9, and GILDAS version nov21a, only.
 
 The following Python packages are required:
 
@@ -17,7 +17,7 @@ The following Python packages are required:
 * matplotlib
 * colorama
 
-For Mac and Anaconda users: CLASS' preferred install method on Mac is through MacPorts. These scripts utilise CLASS' ability to talk to Python -- CLASS does not talk to the Anaconda-installed Python, nor the Anacaonda `pip`. It is advised that you have a MacPorts-installed Python as well, and use the system `pip` to install Python packages, otherwise these scripts will not run. To check whch `pip` is currently in use, type `which pip` into a terminal - if the path printed to the terminal is that to your local bin, then the system's pip is already in use. If the path is instead to the Anaconda bin, what worked for me was to temporarily comment out the Anaconda path in my `~/.bashrc` file to force the system `pip` to be used. Once the packages were installed I then went back and undid the comment.
+For users of Anaconda on Mac: CLASS' preferred install method on Mac is through MacPorts. These scripts utilise CLASS' ability to talk to Python -- CLASS does not talk to the Anaconda-installed Python, nor the Anacaonda `pip`. It is advised that you have a MacPorts-installed Python as well, and use the system `pip` to install Python packages, otherwise these scripts will not run. To check whch `pip` is currently in use, type `which pip` into a terminal - if the path printed to the terminal is that to your local bin, then the system's pip is already in use. If the path is instead to the Anaconda bin, what worked for me was to temporarily comment out the Anaconda path in my `~/.bashrc` file to force the system `pip` to be used. Once the packages were installed I then went back and undid the comment.
 
 
 ## Script methodology
