@@ -4,7 +4,6 @@
 # =============================================================================
 # Uses emcee to explore parameters of synthetic spectra created by WeedsPy.py #
 # =============================================================================
-
 import os
 import numpy as np
 import emcee
@@ -269,7 +268,7 @@ class WeedsPy_MCMC:
         
         
         # Get the results
-        theta_max = samples_flat[np.argmax(sampler.flatlnprobability)]
+        theta_max = sampler.flatchain[np.argmax(sampler.flatlnprobability)]
         np.savetxt('theta_max/theta_max_flatlnprob_i{0}_j{1}.csv'.format(ii,jj),theta_max,delimiter=',')
 
 
@@ -278,7 +277,7 @@ class WeedsPy_MCMC:
         results_err_up = []
         results_err_low = []
         # Loop over each dimension
-        for i in range(self.ndim):
+        for i in range(self.n_dim):
             mcmc_params = np.percentile(samples_flat[:,i],[16,50,84])
             errors = np.diff(mcmc_params)
             
@@ -447,7 +446,7 @@ if __name__ == '__main__':
     
     
     # Flag to make plots or not (True = yes, False = no)
-    make_plots = False
+    make_plots = True
     
     # Read in the data    
     pixi = np.array([288])
@@ -482,4 +481,4 @@ if __name__ == '__main__':
             tt.plot_chains(samples,pixi[ind],pixj[ind])
             
         
-  
+       
