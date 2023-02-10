@@ -85,11 +85,6 @@ class WeedsPy_MCMC:
         
         
         """
-        freq_low,
-        freq_up,
-        peak_spec,
-        telescope_diameter,
-        
         
         This class takes in the spectrum to the modelled by Weeds, and uses
         emcee to determine the parameters of the synthetic spectra.
@@ -146,12 +141,14 @@ class WeedsPy_MCMC:
         
 
     def main_emcee(self,xdata,ydata):
+        """
+        This is the main function that will carry out the emcee process
+        """
         
     
         def model(theta,ii=None,jj=None):#,best_model_flag=None):
             """
             Function to evaluate the model of the data
-            # For my case, won't need the age=age bit, as that is x, and my model doesn't depend on x
             """
             a1_N, a2_T, a3_v, a4_dv = theta
             
@@ -160,7 +157,6 @@ class WeedsPy_MCMC:
             temp = a2_T 
             v_off = a3_v
             width = a4_dv
-            #print(Fore.GREEN + "PARAMETERS: NH2= %s, T= %s, Vsys= %s, dV= %s" % (coldens, temp, v_off, width) + Fore.WHITE)
             
             # =========================================================================
             # Create the model file that CLASS will read:
@@ -236,20 +232,21 @@ class WeedsPy_MCMC:
             return lp + lnlike(theta, x, y, yerr)
     
         
-        # Set-up beginning walk locations as a gaussian around the parameters.
+        # Set the starting locations of the walkers as a gaussian around the initial guesses
         p0 = [np.array(self.initial) + 1e-3 * np.random.randn(self.n_dim) for i in range(self.n_walkers)] 
 
-        # Setup the vector of theta i.e. data
+        # Setup the vector of theta (i.e. data)
         data = (xdata, ydata, self.rms_noise)
 
         sampler = emcee.EnsembleSampler(self.n_walkers, self.n_dim, lnprob, args=data)
     
+        # Start burn-in run
         print("Running burn-in...")
-        pos0, prob0, state0 = sampler.run_mcmc(p0, self.n_burn) # 100
-        #print "state0", state0
+        pos0, prob0, state0 = sampler.run_mcmc(p0, self.n_burn)
         sampler.reset()
         
-        print("Running production...") # Start the production run from the last of the burn in runs, and with a clear sampler
+        # Start the production run from the last of the burn in runs, and with a clear sampler
+        print("Running production...") 
         pos, prob, state = sampler.run_mcmc(pos0, self.n_iter)
                 
         
@@ -369,6 +366,7 @@ class WeedsPy_MCMC:
         elif self.freq_unit == 'kHz':
             mean_freq_GHz = self.mean_freq/1e6
         else:
+            # If not in Hz, kHz or MHz, assume already in GHz
             mean_freq_GHz = self.mean_freq
         
         # Check the unit of the rms noise, and do conversion
@@ -379,7 +377,7 @@ class WeedsPy_MCMC:
         elif self.rms_noise_unit == 'uJy/beam':
             rms_kelvin = (1.222e3*self.rms_noise/1e3)/((mean_freq_GHz**2)*self.bmaj*self.bmin)
         else:
-            # If not any of the above units, assume it is already in Kelvin
+            # If not Jy/beam, mJy/beam or uJy/beam, assume already in Kelvin
             rms_kelvin = rms_noise
         
         self.rms_noise = rms_kelvin
@@ -395,7 +393,7 @@ if __name__ == '__main__':
     # Read the parameter file:
     params = read_params_file('paramfile.txt')
 
-    # Get parameters from the parameter file that are needed to initialize the class:
+    # Get parameters from the parameter file and set their types:
     catalog_name = params['catalog_name']
     molecule_name = params['molecule']
     source_size = float(params['source_size'])
@@ -490,7 +488,6 @@ if __name__ == '__main__':
             # Trace plot of chains
             tt.plot_chains(samples,pixi[ind],pixj[ind])
             
-        
         
         
        
