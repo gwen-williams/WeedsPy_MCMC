@@ -263,7 +263,7 @@ class WeedsPy_MCMC:
         samples = sampler.get_chain()
         
         # Get the flat samples
-        samples_flat = sampler.get_chain(discard=self.n_burn, flat=True) # thin=10
+        samples_flat = sampler.get_chain(flat=True) # thin=10, discard=self.n_burn
         np.savetxt('samples/samples_flatchain_i{0}_j{1}.csv'.format(ii,jj),samples_flat,delimiter=',')
         
             
@@ -351,13 +351,24 @@ class WeedsPy_MCMC:
         fig, axs = plt.subplots(self.n_dim, figsize=(10,7), sharex=True)
         axsf = axs.flatten()
         
-        labels=["column", "T_ex", "V_sys", "delta_V"]
+        #labels=["column", "T_ex", "V_sys", "delta_V"]
+        labels = [r"N(mol) ($\times$ %s cm$^{-2}$)" % (self.column_base),r"T$_{\mathrm{ex}}$ (K)",r"V$_{\mathrm{cen}}$ (km s$^{-1}$)","$\Delta$V (km s$^{-1}$)"]
         
+        # Iterate over each dimension
         for i in range(self.n_dim):
+            # Plot the chain traces
             axsf[i].plot(samples[:,:,i],"k",alpha=0.4)
+            # Plot vertical line denoting the end of the burn-in
+            axsf[i].axvline(self.n_burn,np.min(samples[:,:,i]),np.max(samples[:,:,i]),linestyle='--',col='#bbbbbb')
+            # General params
             axsf[i].set_xlim(0,len(samples))
             axsf[i].set_ylabel(labels[i])
+            axsf[i].tick_params(top=True,right=True)
+            axsf[i].yaxis.set_tick_params(which='minor', right=True)
+            axsf[i].xaxis.set_tick_params(which='minor', top=True)
+        # Only put x label on the final subplot    
         axsf[i].set_xlabel("Iterations")
+        # Save
         fig.savefig('plots/chains_i{0}_j{1}.pdf'.format(ii,jj),bbox_inches='tight')
         
         return fig
@@ -498,6 +509,6 @@ if __name__ == '__main__':
             tt.plot_chains(samples,pixi[ind],pixj[ind])
             
         
-        
+             
         
        
