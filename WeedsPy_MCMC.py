@@ -357,7 +357,7 @@ class WeedsPy_MCMC:
             results_err_low.append(errors[0])
             results_err_up.append(errors[1])
         
-        
+        """
         # Highest likelihood parameters:
         best_N = results[0]
         best_T = results[1]
@@ -374,13 +374,20 @@ class WeedsPy_MCMC:
         best_dV_err_low = results_err_low[3]        
        
         return samples, samples_flat, best_N, best_N_err_up, best_N_err_low, best_T, best_T_err_up, best_T_err_low, best_V, best_V_err_up, best_V_err_low, best_dV, best_dV_err_up, best_dV_err_low
-        
+        """
+        return samples, samples_flat, results, results_err_up, results_err_low
         
     def plot_corner(self,samples_flat,ii,jj):
         """
         Function to make a corner plot
         """
-        labels=["column", "T_ex", "V_sys", "delta_V"]
+        # Change the plot labels based on the number of fitted parameters:
+        if self.n_dim == 4:
+            labels = [r"N(mol) ($\times$ %s cm$^{-2}$)" % (self.column_base),r"T$_{\mathrm{ex}}$ (K)",r"V$_{\mathrm{cen}}$ (km s$^{-1}$)","$\Delta$V (km s$^{-1}$)"]
+        elif self.n_dim == 5:
+            labels = [r"N(mol) ($\times$ %s cm$^{-2}$)" % (self.column_base),r"T$_{\mathrm{ex}}$ (K)",r"V$_{\mathrm{cen}}$ (km s$^{-1}$)","$\Delta$V (km s$^{-1}$)", r"$\theta_{\mathrm{source}}$ (arcsec)"]
+        elif self.n_dim == 2:
+            labels = [r"N(mol) ($\times$ %s cm$^{-2}$)" % (self.column_base),r"T$_{\mathrm{ex}}$ (K)"]
         
         fig = corner.corner(samples_flat, 
                             labels=labels, 
@@ -404,9 +411,15 @@ class WeedsPy_MCMC:
         fig, axs = plt.subplots(self.n_dim, figsize=(10,7), sharex=True)
         axsf = axs.flatten()
         
-        #labels=["column", "T_ex", "V_sys", "delta_V"]
-        labels = [r"N(mol) ($\times$ %s cm$^{-2}$)" % (self.column_base),r"T$_{\mathrm{ex}}$ (K)",r"V$_{\mathrm{cen}}$ (km s$^{-1}$)","$\Delta$V (km s$^{-1}$)"]
-        
+        # Change the plot labels based on the number of fitted parameters:
+        if self.n_dim == 4:
+            labels = [r"N(mol) ($\times$ %s cm$^{-2}$)" % (self.column_base),r"T$_{\mathrm{ex}}$ (K)",r"V$_{\mathrm{cen}}$ (km s$^{-1}$)","$\Delta$V (km s$^{-1}$)"]
+        elif self.n_dim == 5:
+            labels = [r"N(mol) ($\times$ %s cm$^{-2}$)" % (self.column_base),r"T$_{\mathrm{ex}}$ (K)",r"V$_{\mathrm{cen}}$ (km s$^{-1}$)","$\Delta$V (km s$^{-1}$)", r"$\theta_{\mathrm{source}}$ (arcsec)"]
+        elif self.n_dim == 2:
+            labels = [r"N(mol) ($\times$ %s cm$^{-2}$)" % (self.column_base),r"T$_{\mathrm{ex}}$ (K)"]
+
+
         # Iterate over each dimension
         for i in range(self.n_dim):
             # Plot the chain traces
@@ -560,8 +573,8 @@ if __name__ == '__main__':
         tt.convert_noise_to_K()
         
         # don't need the x and y data defined in the self, can define them here
-        samples, samples_flat, N, N_err_up, N_err_low, T, T_err_up, T_err_low, V, V_err_up, V_err_low, dV, dV_err_up, dV_err_low = tt.run_emcee(xdata,ydata,pixi[ind],pixj[ind])
-        
+        #samples, samples_flat, N, N_err_up, N_err_low, T, T_err_up, T_err_low, V, V_err_up, V_err_low, dV, dV_err_up, dV_err_low = tt.run_emcee(xdata,ydata,pixi[ind],pixj[ind])
+        samples, samples_flat, results, results_err_up, results_err_low = tt.run_emcee(xdata,ydata,pixi[ind],pixj[ind])
         
         if make_plots == True:
             # Corner plot
