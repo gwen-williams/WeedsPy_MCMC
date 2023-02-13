@@ -425,7 +425,7 @@ class WeedsPy_MCMC:
             # Plot the chain traces
             axsf[i].plot(samples[:,:,i],"k",alpha=0.4)
             # Plot vertical line denoting the end of the burn-in
-            axsf[i].axvline(self.n_burn,np.min(samples[:,:,i]),np.max(samples[:,:,i]),linestyle='--',col='#bbbbbb')
+            axsf[i].axvline(self.n_burn,np.min(samples[:,:,i]),np.max(samples[:,:,i]),linestyle='--',color='#bbbbbb')
             # General params
             axsf[i].set_xlim(0,len(samples))
             axsf[i].set_ylabel(labels[i])
@@ -584,5 +584,4 @@ if __name__ == '__main__':
             
         
                  
-        
        
