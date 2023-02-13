@@ -80,6 +80,8 @@ class WeedsPy_MCMC:
         freq_up,
         peak_spec,
         telescope_diameter,
+        vel_sys,
+        vel_width,
         
     ):
         
@@ -114,6 +116,8 @@ class WeedsPy_MCMC:
         self.freq_up = freq_up
         self.peak_spec = peak_spec
         self.telescope_diameter = telescope_diameter
+        self.vel_sys = vel_sys
+        self.vel_width = vel_width
 
 
     def set_gildas_variables(self):
@@ -174,7 +178,7 @@ class WeedsPy_MCMC:
                 d=[hd1,hd2,hd3]
             
             # If you want to model all 5 parameters:
-            elif self.ndim == 5:
+            elif self.n_dim == 5:
                 
                 a1_N, a2_T, a3_v, a4_dv, a5_ss = theta
                 
@@ -192,7 +196,7 @@ class WeedsPy_MCMC:
                 d=[hd1,hd2,hd3]
             
             # If you want to model only column density and velocity width:
-            elif self.ndim == 2:
+            elif self.n_dim == 2:
                 
                 a1_N, a2_T = theta
                 
@@ -203,7 +207,7 @@ class WeedsPy_MCMC:
                 # Create arrays to write to the .mdl files, which CLASS will read
                 hd1 = np.array(["! species", "Ntot", "Tex", "source_size", "v_off", "width"])
                 hd2 = np.array(["!", "(cm-2)","(K)", "('')", "(km/s)", "(km/s)"])
-                hd3 = np.array([self.molecule_name,coldens,temp,self.source_size,self.v_off,self.v_width])
+                hd3 = np.array([self.molecule_name,coldens,temp,self.source_size,self.vel_sys,self.vel_width])
                 d=[hd1,hd2,hd3]
             
                 
@@ -255,9 +259,24 @@ class WeedsPy_MCMC:
             """
             Function to set the priors, and check that all the values walked to are within the priors. Flat priors.
             """
-            a1_N, a2_T, a3_v, a4_dv = theta #, a5_s = theta
-            if self.priors[0] < a1_N < self.priors[1] and self.priors[2] < a2_T < self.priors[3] and self.priors[4] < a3_v < self.priors[5] and self.priors[6] < a4_dv < self.priors[7]: #and 0.4 < a5_s < 0.6:
-                return 0.0
+            # If you are modelling 4 parameters: column density, temperature, centroid velocity and velocity width
+            if self.n_dim == 4:
+                a1_N, a2_T, a3_v, a4_dv = theta #, a5_s = theta
+                if self.priors[0] < a1_N < self.priors[1] and self.priors[2] < a2_T < self.priors[3] and self.priors[4] < a3_v < self.priors[5] and self.priors[6] < a4_dv < self.priors[7]:
+                    return 0.0
+            
+            # If you're modelling all 5 parameters:
+            elif self.n_dim == 5:
+                a1_N, a2_T, a3_v, a4_dv, a5_ss = theta #, a5_s = theta
+                if self.priors[0] < a1_N < self.priors[1] and self.priors[2] < a2_T < self.priors[3] and self.priors[4] < a3_v < self.priors[5] and self.priors[6] < a4_dv < self.priors[7] and self.priors[8] < a5_ss < self.priors[9]:
+                    return 0.0
+            
+            # If you're modelling only 2 parameters: column density and temperature
+            elif self.n_dim == 2:
+                a1_N, a2_T = theta #, a5_s = theta
+                if self.priors[0] < a1_N < self.priors[1] and self.priors[2] < a2_T < self.priors[3]:
+                    return 0.0
+            
             return -np.inf
         
         
@@ -450,7 +469,7 @@ if __name__ == '__main__':
     # Get parameters from the parameter file and set their types:
     catalog_name = params['catalog_name']
     molecule_name = params['molecule']
-    source_size = float(params['source_size'])
+    #source_size = float(params['source_size'])
     rms_noise = float(params['rms_noise'])
     rms_noise_unit = str(params['rms_noise_unit'])
     n_burn = int(params['nburn'])
@@ -471,14 +490,20 @@ if __name__ == '__main__':
     
     # List of the priors, each pairs corresponds to upper and lower bounds for
     # column density, temperature, systemic velocity and velocity width
-    priors = [0.05,3.0,80,230,56.0,64.0,2.0,8.0]
+    priors = [0.05,3.0,80,230]#,56.0,64.0,2.0,8.0]
     
     # Initial locations for walkers:
     # column density, temperature, systemic velocity, velocity width
-    initial = np.array([1.0,120,60.0,5.8])
+    initial = np.array([1.0,120])#,60.0,5.8])
     
     # Number of parameters to fit:
     n_dim = len(initial)
+    
+    # Set the value of the parameters that will NOT be modelled with emcee:
+    # If you won't be modelling them, set them to None
+    source_size = float(params['source_size'])
+    vel_sys = 59.7
+    vel_width = 6.0
     
     # Initialise the class
     tt = WeedsPy_MCMC(catalog_name = catalog_name, 
@@ -500,7 +525,9 @@ if __name__ == '__main__':
                       freq_low = freq_low,
                       freq_up = freq_up,
                       peak_spec = peak_spec,
-                      telescope_diameter = telescope_diameter)
+                      telescope_diameter = telescope_diameter,
+                      vel_sys = vel_sys,
+                      vel_width = vel_width)
     
     
     # Set the variables in GILDAS
@@ -543,6 +570,6 @@ if __name__ == '__main__':
             tt.plot_chains(samples,pixi[ind],pixj[ind])
             
         
-             
+                 
         
        
