@@ -150,24 +150,63 @@ class WeedsPy_MCMC:
             """
             Function to evaluate the model of the data
             """
-            a1_N, a2_T, a3_v, a4_dv = theta
             
-            # Model properties
-            coldens = a1_N*self.column_base
-            temp = a2_T 
-            v_off = a3_v
-            width = a4_dv
+            # If you want to model column density, temperature, centroid velocity and velocity width:
+            if self.n_dim == 4:
             
-            # =========================================================================
-            # Create the model file that CLASS will read:
-            # =========================================================================
+                # Unpack the theta array of the walked to parameter values:
+                a1_N, a2_T, a3_v, a4_dv = theta
+                
+                # Model properties
+                coldens = a1_N*self.column_base
+                temp = a2_T 
+                v_off = a3_v
+                v_width = a4_dv
+                
+                # =========================================================================
+                # Create the model file that CLASS will read:
+                # =========================================================================
+                
+                # Create arrays to write to the .mdl files, which CLASS will read
+                hd1 = np.array(["! species", "Ntot", "Tex", "source_size", "v_off", "width"])
+                hd2 = np.array(["!", "(cm-2)","(K)", "('')", "(km/s)", "(km/s)"])
+                hd3 = np.array([self.molecule_name,coldens,temp,self.source_size,v_off,v_width])
+                d=[hd1,hd2,hd3]
             
-            # Create arrays to write to the .mdl files, which CLASS will read
-            hd1 = np.array(["! species", "Ntot", "Tex", "source_size", "v_off", "width"])
-            hd2 = np.array(["!", "(cm-2)","(K)", "('')", "(km/s)", "(km/s)"])
-            hd3 = np.array([self.molecule_name,coldens,temp,self.source_size,v_off,width])
-            d=[hd1,hd2,hd3]
-        
+            # If you want to model all 5 parameters:
+            elif self.ndim == 5:
+                
+                a1_N, a2_T, a3_v, a4_dv, a5_ss = theta
+                
+                # Model properties
+                coldens = a1_N*self.column_base
+                temp = a2_T 
+                v_off = a3_v
+                v_width = a4_dv
+                source_size = a5_ss
+                
+                # Create arrays to write to the .mdl files, which CLASS will read
+                hd1 = np.array(["! species", "Ntot", "Tex", "source_size", "v_off", "width"])
+                hd2 = np.array(["!", "(cm-2)","(K)", "('')", "(km/s)", "(km/s)"])
+                hd3 = np.array([self.molecule_name,coldens,temp,source_size,v_off,v_width])
+                d=[hd1,hd2,hd3]
+            
+            # If you want to model only column density and velocity width:
+            elif self.ndim == 2:
+                
+                a1_N, a2_T = theta
+                
+                # Model properties
+                coldens = a1_N*self.column_base
+                temp = a2_T 
+                
+                # Create arrays to write to the .mdl files, which CLASS will read
+                hd1 = np.array(["! species", "Ntot", "Tex", "source_size", "v_off", "width"])
+                hd2 = np.array(["!", "(cm-2)","(K)", "('')", "(km/s)", "(km/s)"])
+                hd3 = np.array([self.molecule_name,coldens,temp,self.source_size,self.v_off,self.v_width])
+                d=[hd1,hd2,hd3]
+            
+                
             # Save .mdl file for CLASS to read.
             np.savetxt("mdlfiles/temp_mdlfile.mdl",d,delimiter='\t',fmt='%s')
             
@@ -251,11 +290,10 @@ class WeedsPy_MCMC:
                 
         
         return sampler
-    
+
     
     def run_emcee(self,xdata,ydata,ii,jj):
         
-            
         # Run the emcee
         sampler = self.main_emcee(xdata,ydata)
         
@@ -266,24 +304,20 @@ class WeedsPy_MCMC:
         samples_flat = sampler.get_chain(flat=True) # thin=10, discard=self.n_burn
         np.savetxt('samples/samples_flatchain_i{0}_j{1}.csv'.format(ii,jj),samples_flat,delimiter=',')
         
-            
-        
+
         # Find the autocorrelation time of the run:
         try:
             tau = sampler.get_autocorr_time()
-        
         except:
             print(
-                '**Warning** The chain is shorter than 50 times the integrated autocorrelation time for 4 parameter(s). Use this estimate with caution and run a longer chain!'
+                f'**Warning** Walker chain is shorter than 50 times the integrated autocorrelation time for {self.n_dim} parameter(s). Proceed with caution and consider running a longer chain if you can.'
             )
             tau = np.inf
-        
         print(
-            f'The autocorrelation time is {tau}. You should run the chains for at least 10 x steps as this.'
+            f'The autocorrelation time is {tau}. Consider running the chains for at least 10 times as long as this.'
         )
-        
         print('----------------------------------------------------------')
-        
+
         
         # Get the results
         theta_max = sampler.flatchain[np.argmax(sampler.flatlnprobability)]
