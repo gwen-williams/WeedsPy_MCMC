@@ -513,13 +513,11 @@ if __name__ == '__main__':
     # Get parameters from the parameter file and set their types:
     catalog_name = params['catalog_name']
     molecule_name = params['molecule']
-    #source_size = float(params['source_size'])
     rms_noise = float(params['rms_noise'])
     rms_noise_unit = str(params['rms_noise_unit'])
     n_burn = int(params['nburn'])
     n_iter = int(params['nprod'])
     n_walkers = int(params['nwalkers'])
-    #column_base = int(params['col_base'])
     mean_freq = float(params['mean_freq'])
     bmaj = float(params['bmaj'])
     bmin = float(params['bmin'])
@@ -534,11 +532,11 @@ if __name__ == '__main__':
     
     # List of the priors, each pairs corresponds to upper and lower bounds for
     # column density, temperature, systemic velocity and velocity width
-    priors = [0.05,3.0,80,230]#,56.0,64.0,2.0,8.0]
+    priors = [0.05,3.0,80,230,56.0,64.0,2.0,8.0]
     
     # Initial locations for walkers:
     # column density, temperature, systemic velocity, velocity width
-    initial = np.array([1.0,120])#,60.0,5.8])
+    initial = np.array([1.0,120,60.0,5.8])
     
     # Number of parameters to fit:
     n_dim = len(initial)
@@ -546,11 +544,11 @@ if __name__ == '__main__':
     # Set the value of the parameters that will NOT be modelled with emcee:
     # If you won't be modelling them, set them to None
     source_size = float(params['source_size'])
-    vel_sys = 59.7
-    vel_width = 6.0
+    vel_sys = None
+    vel_width = None
     
     # Initialise the class
-    tt = WeedsPy_MCMC(catalog_name = catalog_name, 
+    W = WeedsPy_MCMC(catalog_name = catalog_name, 
                       molecule_name = molecule_name, 
                       source_size = source_size, 
                       rms_noise = rms_noise, 
@@ -575,7 +573,7 @@ if __name__ == '__main__':
     
     
     # Set the variables in GILDAS
-    tt.set_gildas_variables()
+    W.set_gildas_variables()
     
     
     # Flag to make plots or not (True = yes, False = no)
@@ -591,7 +589,7 @@ if __name__ == '__main__':
     # Loop over each of the pixels
     for ind in range(0,npix):
         
-        peakname = 'spec_i{0}_j{1}.30m'.format(pixi[ind],pixj[ind])
+        peakname = 'spectra/spec_i{0}_j{1}.30m'.format(pixi[ind],pixj[ind])
         obs = fits.open(peakname[:-4]+'.fits')[0]
         ydata = np.asarray(obs.data).flatten()
         xdata = np.arange(0,len(ydata))
@@ -601,17 +599,17 @@ if __name__ == '__main__':
         Sic.comm('let t_cont '+str(tcont[ind]))
 
         # Convert the noise to Kelvin:
-        tt.convert_noise_to_K()
+        W.convert_noise_to_K()
         
         # don't need the x and y data defined in the self, can define them here
         #samples, samples_flat, N, N_err_up, N_err_low, T, T_err_up, T_err_low, V, V_err_up, V_err_low, dV, dV_err_up, dV_err_low = tt.run_emcee(xdata,ydata,pixi[ind],pixj[ind])
-        samples, samples_flat, results, results_err_up, results_err_low = tt.run_emcee(xdata,ydata,pixi[ind],pixj[ind])
+        samples, samples_flat, results, results_err_up, results_err_low = W.run_emcee(xdata,ydata,pixi[ind],pixj[ind])
         
         if make_plots == True:
             # Corner plot
-            tt.plot_corner(samples_flat,pixi[ind],pixj[ind])
+            W.plot_corner(samples_flat,pixi[ind],pixj[ind])
             # Trace plot of chains
-            tt.plot_chains(samples,pixi[ind],pixj[ind])
+            W.plot_chains(samples,pixi[ind],pixj[ind])
             
         
                      
