@@ -210,14 +210,17 @@ class WeedsPy_MCMC:
                 hd3 = np.array([self.molecule_name,coldens,temp,self.source_size,self.vel_sys,self.vel_width])
                 d=[hd1,hd2,hd3]
             
-                
+            else:
+                raise ValueError("n_dim must be either 4, 5 or 2. Code does not yet support modelling of 3 or only 1 parameters.")
+
+            
             # Save .mdl file for CLASS to read.
             np.savetxt("mdlfiles/temp_mdlfile.mdl",d,delimiter='\t',fmt='%s')
             
             # =========================================================================
-            # Call the CLASS script to perform the modelling
+            # Call the Gildas/CLASS script to perform the modelling
             # =========================================================================
-            Sic.comm('@WeedsPy.class')
+            Sic.comm('@WeedsPy_MCMC.class')
             
             # =========================================================================
             # Read in the model data, and return it:
@@ -260,6 +263,7 @@ class WeedsPy_MCMC:
             Function to set the priors, and check that all the values walked to are within the priors. Flat priors.
             """
             # If you are modelling 4 parameters: column density, temperature, centroid velocity and velocity width
+
             if self.n_dim == 4:
                 a1_N, a2_T, a3_v, a4_dv = theta #, a5_s = theta
                 if self.priors[0] < a1_N < self.priors[1] and self.priors[2] < a2_T < self.priors[3] and self.priors[4] < a3_v < self.priors[5] and self.priors[6] < a4_dv < self.priors[7]:
@@ -276,6 +280,9 @@ class WeedsPy_MCMC:
                 a1_N, a2_T = theta #, a5_s = theta
                 if self.priors[0] < a1_N < self.priors[1] and self.priors[2] < a2_T < self.priors[3]:
                     return 0.0
+            else:
+                raise ValueError("n_dim must be either 4, 5 or 2. Code does not yet support modelling of 3 or only 1 parameters.")
+
             
             return -np.inf
         
@@ -382,13 +389,16 @@ class WeedsPy_MCMC:
         Function to make a corner plot
         """
         # Change the plot labels based on the number of fitted parameters:
+
         if self.n_dim == 4:
             labels = [r"N(mol) ($\times$ %s cm$^{-2}$)" % (self.column_base),r"T$_{\mathrm{ex}}$ (K)",r"V$_{\mathrm{cen}}$ (km s$^{-1}$)","$\Delta$V (km s$^{-1}$)"]
         elif self.n_dim == 5:
             labels = [r"N(mol) ($\times$ %s cm$^{-2}$)" % (self.column_base),r"T$_{\mathrm{ex}}$ (K)",r"V$_{\mathrm{cen}}$ (km s$^{-1}$)","$\Delta$V (km s$^{-1}$)", r"$\theta_{\mathrm{source}}$ (arcsec)"]
         elif self.n_dim == 2:
             labels = [r"N(mol) ($\times$ %s cm$^{-2}$)" % (self.column_base),r"T$_{\mathrm{ex}}$ (K)"]
-        
+        else:
+            raise ValueError("n_dim must be either 4, 5 or 2. Code does not yet support modelling of 3 or only 1 parameters.")
+
         fig = corner.corner(samples_flat, 
                             labels=labels, 
                             show_titles=True,
@@ -418,6 +428,8 @@ class WeedsPy_MCMC:
             labels = [r"N(mol) ($\times$ %s cm$^{-2}$)" % (self.column_base),r"T$_{\mathrm{ex}}$ (K)",r"V$_{\mathrm{cen}}$ (km s$^{-1}$)","$\Delta$V (km s$^{-1}$)", r"$\theta_{\mathrm{source}}$ (arcsec)"]
         elif self.n_dim == 2:
             labels = [r"N(mol) ($\times$ %s cm$^{-2}$)" % (self.column_base),r"T$_{\mathrm{ex}}$ (K)"]
+        else:
+            raise ValueError("n_dim must be either 4, 5 or 2. Code does not yet support modelling of 3 or only 1 parameters.")
 
 
         # Iterate over each dimension
@@ -503,11 +515,11 @@ if __name__ == '__main__':
     
     # List of the priors, each pairs corresponds to upper and lower bounds for
     # column density, temperature, systemic velocity and velocity width
-    priors = [0.05,3.0,80,230]#,56.0,64.0,2.0,8.0]
+    priors = [0.05,3.0]#,80,230]#,56.0,64.0,2.0,8.0]
     
     # Initial locations for walkers:
     # column density, temperature, systemic velocity, velocity width
-    initial = np.array([1.0,120])#,60.0,5.8])
+    initial = np.array([1.0])#,120])#,60.0,5.8])
     
     # Number of parameters to fit:
     n_dim = len(initial)
@@ -582,6 +594,5 @@ if __name__ == '__main__':
             # Trace plot of chains
             tt.plot_chains(samples,pixi[ind],pixj[ind])
             
-        
-                 
+                     
        
