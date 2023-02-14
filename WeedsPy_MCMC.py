@@ -223,66 +223,6 @@ class WeedsPy_MCMC:
             Function to evaluate the model of the data
             """
             
-            """
-            # If you want to model column density, temperature, centroid velocity and velocity width:
-            if self.n_dim == 4:
-            
-                # Unpack the theta array of the walked to parameter values:
-                a1_N, a2_T, a3_v, a4_dv = theta
-                
-                # Model properties
-                coldens = a1_N*self.column_base
-                temp = a2_T 
-                v_off = a3_v
-                v_width = a4_dv
-                
-                # =========================================================================
-                # Create the model file that CLASS will read:
-                # =========================================================================
-                
-                # Create arrays to write to the .mdl files, which CLASS will read
-                hd1 = np.array(["! species", "Ntot", "Tex", "source_size", "v_off", "width"])
-                hd2 = np.array(["!", "(cm-2)","(K)", "('')", "(km/s)", "(km/s)"])
-                hd3 = np.array([self.molecule_name,coldens,temp,self.source_size,v_off,v_width])
-                mdl=[hd1,hd2,hd3]
-            
-            # If you want to model all 5 parameters:
-            elif self.n_dim == 5:
-                
-                a1_N, a2_T, a3_v, a4_dv, a5_ss = theta
-                
-                # Model properties
-                coldens = a1_N*self.column_base
-                temp = a2_T 
-                v_off = a3_v
-                v_width = a4_dv
-                source_size = a5_ss
-                
-                # Create arrays to write to the .mdl files, which CLASS will read
-                hd1 = np.array(["! species", "Ntot", "Tex", "source_size", "v_off", "width"])
-                hd2 = np.array(["!", "(cm-2)","(K)", "('')", "(km/s)", "(km/s)"])
-                hd3 = np.array([self.molecule_name,coldens,temp,source_size,v_off,v_width])
-                mdl=[hd1,hd2,hd3]
-            
-            # If you want to model only column density and velocity width:
-            elif self.n_dim == 2:
-                
-                a1_N, a2_T = theta
-                
-                # Model properties
-                coldens = a1_N*self.column_base
-                temp = a2_T 
-                
-                # Create arrays to write to the .mdl files, which CLASS will read
-                hd1 = np.array(["! species", "Ntot", "Tex", "source_size", "v_off", "width"])
-                hd2 = np.array(["!", "(cm-2)","(K)", "('')", "(km/s)", "(km/s)"])
-                hd3 = np.array([self.molecule_name,coldens,temp,self.source_size,self.vel_sys,self.vel_width])
-                mdl=[hd1,hd2,hd3]
-            
-            else:
-                raise ValueError("n_dim must be either 4, 5 or 2. Code does not yet support modelling of 3 or only 1 parameters.")
-            """
-            
             # Make the .mdl file that Gildas/CLASS will need to make the synthetic spectrum and save it
             mdl = self.make_gildas_mdl_file(theta)
             np.savetxt("mdlfiles/temp_mdlfile.mdl",mdl,delimiter='\t',fmt='%s')
@@ -298,27 +238,11 @@ class WeedsPy_MCMC:
             mod = fits.open('synthfiles/temp_synthfile.fits')[0]
             modeldata = np.asarray(mod.data)[0,0,0,0:]
             modeldata[np.where(np.isnan(modeldata)==True)] = 0. # Remove nans from the model
-            modeldata[860:910]=0.  # Remove the maser line from the evaluation of the likelihood
             
-            #if main_run == True:
-            """
-            Delete the intermediate files whilst trying to converge on a solution i.e. when main_run == True.
-            If wanting to plot the best model, i.e. main_run == False, then don't delete these files
-            """
-            #os.remove(DIR+"mdlfiles/CH3OH_{0}cm-2_{1}K.mdl".format(coldens,temp))
+            #Delete the intermediate files whilst trying to converge on a solution
             os.remove('mdlfiles/temp_mdlfile.mdl')
-            os.remove('synthfiles/temp_synthfile.fits')#+modname)
-            os.remove('synthfiles/temp_synthfile.30m')#+modname[:-5]+'.30m')
-        
-            #if main_run == False:
-            #if save_best:
-            #    """
-            #    Keep the best fitting model written to file, just rename the file:
-            #    """
-            #    print("Saving the synthetic spectrum with the highest likelihood parameter values")
-            #    os.rename('synthfiles/temp_synthfile.fits','synthfiles/best_synthfile_i{0}_j{1}.fits'.format(ii,jj))
-            #    os.rename('synthfiles/temp_synthfile.30m','synthfiles/best_synthfile_i{0}_j{1}.30m'.format(ii,jj))
-            #    os.rename('mdlfiles/temp_mdlfile.mdl','mdlfiles/best_mdlfile_i{0}_j{1}.mdl'.format(ii,jj))
+            os.remove('synthfiles/temp_synthfile.fits')
+            os.remove('synthfiles/temp_synthfile.30m')
             
             return modeldata
         
@@ -335,7 +259,6 @@ class WeedsPy_MCMC:
             Function to set the priors, and check that all the values walked to are within the priors. Flat priors.
             """
             # If you are modelling 4 parameters: column density, temperature, centroid velocity and velocity width
-
             if self.n_dim == 4:
                 a1_N, a2_T, a3_v, a4_dv = theta #, a5_s = theta
                 if self.priors[0] < a1_N < self.priors[1] and self.priors[2] < a2_T < self.priors[3] and self.priors[4] < a3_v < self.priors[5] and self.priors[6] < a4_dv < self.priors[7]:
@@ -401,7 +324,7 @@ class WeedsPy_MCMC:
             """
             
             mdl = self.make_gildas_mdl_file(theta)
-            np.savetxt('mdlfiles/temp_mdlfile.mdl'.format(ii,jj),mdl,delimiter='\t',fmt='%s')
+            np.savetxt('mdlfiles/temp_mdlfile.mdl',mdl,delimiter='\t',fmt='%s')
             
             # Make the spectrum:
             Sic.comm('@WeedsPy_MCMC.class')
@@ -486,7 +409,6 @@ class WeedsPy_MCMC:
         Function to make a corner plot
         """
         # Change the plot labels based on the number of fitted parameters:
-
         if self.n_dim == 4:
             labels = [r"N(mol) ($\times$ %s cm$^{-2}$)" % (self.column_base),r"T$_{\mathrm{ex}}$ (K)",r"V$_{\mathrm{cen}}$ (km s$^{-1}$)","$\Delta$V (km s$^{-1}$)"]
         elif self.n_dim == 5:
@@ -627,10 +549,6 @@ if __name__ == '__main__':
     vel_sys = 59.7
     vel_width = 6.0
     
-    # Change for now:
-    n_burn = 5
-    n_iter = 5
-    
     # Initialise the class
     tt = WeedsPy_MCMC(catalog_name = catalog_name, 
                       molecule_name = molecule_name, 
@@ -664,9 +582,9 @@ if __name__ == '__main__':
     make_plots = True
     
     # Read in the data    
-    pixi = np.array([288])
-    pixj = np.array([296])
-    tcont = np.array([22.062])
+    pixi = np.array([288]) # x pixel coord
+    pixj = np.array([296]) # y pixel coord
+    tcont = np.array([22.062]) # continuum level (in Kelvin) at that pixel
     npix = len(pixi)
     
     
