@@ -58,10 +58,7 @@ Most parameters required by the scripts are set in a parameter file, and read in
 * `catalog_name` : the name of the molecular line catalog for CLASS to use. Either the name of your own offline file, or cdms or jpl.
 * `molecule` :  name of molecule to be modelled, as it appears in the catalog.
 * `source_size` : size of source, in arcseconds.
-* `freq_lower` : lowest frequency of spectral window, in MHz.
-* `freq_upper` : upper frequency of spectral window, in MHz.
 * `mean_freq` : mean frequency of the spectral window, in MHz.
-* `peak_spec` : peak of the brightest spectrum, in Kelvin.
 * `telescope_diameter` : diameter of telescope, in metres.
 * `bmaj` : beam major axis, in arcseconds.
 * `bmin` : beam minor axis, in arcseconds.
@@ -72,7 +69,7 @@ Most parameters required by the scripts are set in a parameter file, and read in
 * `nwalkers` : number of emcee walkers
 * `freq_unit` : the unit of the frequency, either MHz, GHz, or Hz.
 
-For ease, other parameters that require significant tweaking should be set within the body of your main Python scripts. These include the values of any fixed parameters in your modelling, the priors, and the initial location of your walkers. Examples of how to do this are shown in the `example_scripts` sub-directory.
+Other parameters that require significant tweaking should be set within the body of your main Python scripts, rather than the parameter file. These include the values of any fixed parameters in your modelling, the value range of your priors, and the initial location of your walkers. Examples of how to do this are shown in the `example_scripts` sub-directory.
 
 
 ### Observed spectra
@@ -96,7 +93,7 @@ All functions to carry out the `emcee` sampling are placed inside a Python class
 
 * The biggest bottle-neck with this code is the run time. We are currently looking into parallelisation, and hope a future version will include an option for this if possible.
 
-* We currently rely on the user to create the `.30m` files of their observed spectra themselves. A future version of this script will include a function that will do this for the user.
+* We currently rely on the user to create the `.30m` files of their observed spectra themselves. A future version of this script may include a function to convert `.fits` files to `.30m` files.
 
 
 ## Citing the code 
