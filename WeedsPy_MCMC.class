@@ -45,7 +45,6 @@ cl
 !! Plot ranges defined in WeedsPy.py
 !cl
 !pen /w 3 /col 0
-!set mod x 'freq_lower' 'freq_upper'
 !box
 !greg\draw t -2 2 "Intensity (K)" 4 90 /box 4
 !
