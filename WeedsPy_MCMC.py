@@ -363,6 +363,7 @@ class WeedsPy_MCMC:
         
         # Get the results
         theta_max = sampler.flatchain[np.argmax(sampler.flatlnprobability)]
+        theta_max[0] = theta_max[0]*self.column_base
         np.savetxt('theta_max/theta_max_flatlnprob_i{0}_j{1}.csv'.format(ii,jj),theta_max,delimiter=',')
 
 
@@ -383,24 +384,6 @@ class WeedsPy_MCMC:
         # Save the best spectrum
         save_highest_likelihood_spectrum(theta_max,ii,jj)
         
-        """
-        # Highest likelihood parameters:
-        best_N = results[0]
-        best_T = results[1]
-        best_V = results[2]
-        best_dV = results[3]
-        # Errors on highest likelihood parameters:
-        best_N_err_up = results_err_up[0]
-        best_N_err_low = results_err_low[0]
-        best_T_err_up = results_err_up[1]
-        best_T_err_low = results_err_low[1]
-        best_V_err_up = results_err_up[2]
-        best_V_err_low = results_err_low[2]
-        best_dV_err_up = results_err_up[3]
-        best_dV_err_low = results_err_low[3]        
-       
-        return samples, samples_flat, best_N, best_N_err_up, best_N_err_low, best_T, best_T_err_up, best_T_err_low, best_V, best_V_err_up, best_V_err_low, best_dV, best_dV_err_up, best_dV_err_low
-        """
         return samples, samples_flat, results, results_err_up, results_err_low
         
     
@@ -475,6 +458,7 @@ class WeedsPy_MCMC:
         """
         Convert rms noise from mJy/beam, Jy/beam or uJy/beam to Kelvin
         """
+        
         # Check the units of the frequency, and convert to GHz
         if self.freq_unit == 'MHz':
             mean_freq_GHz = self.mean_freq/1e3
