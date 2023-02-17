@@ -1,7 +1,5 @@
 # WeedsPy_MCMC
 
-Note: below refers to code in master branch. Code in current branch has had a significant re-work, and everything below may no longer be relevant. Re-write of readme will follow a full testing of the code's re-write
-
 Repository still a work in progress!
 
 ## Dependencies
@@ -12,12 +10,12 @@ These scripts have been tested in Python 3.9.9, and GILDAS version nov21a, only.
 
 The following Python packages are required:
 
+* os
 * numpy
 * astropy
 * emcee
 * corner
 * matplotlib
-* colorama
 
 For users of Anaconda on Mac: CLASS' preferred install method on Mac is through MacPorts. These scripts utilise CLASS' ability to talk to Python -- CLASS does not talk to the Anaconda-installed Python, nor the Anacaonda `pip`. It is advised that you have a MacPorts-installed Python as well, and use the system `pip` to install Python packages, otherwise these scripts will not run.
 
@@ -28,7 +26,11 @@ The estimation of the physical parameters of an astromonical source, such as col
 
 We include two generalised scripts, called `WeedsPy_MCMC.py` and `WeedsPy_MCMC.class`. Variables are set by the use in `paramfile.txt`, and are read in by the `read_param_file` function. We use the `emcee` Python package to explore the parameter space of the CLASS/Weeds LTE synthetic spectra. All function that carry out the emcee are located in a Python class object. Variables from the paramfile, and others set by the use in their main script, are passed to the class object. 
 
-These scripts give the user the option of exploring either 2, 4 or 5 free parameters in the synthetic spectra. For two free parameters, column density and temperature will be free parameters, with the centroid velocity, velocity width and source size kept fixed. For the four free parameter case, only the source size will be kept. None of these parameters will be kept fixed in the 5 free parameter case.
+These scripts give the user the option of exploring either 2, 4 or 5 free parameters in the synthetic spectra. The parameters explored are as follows:
+* two free parameters: column density and temperature
+* four free parameters: column density, temperature, centroid velocity, velocity width
+* five free parameters: column density, temperature, centroid velocity, velocity width, source size.
+Missing parameters in these use-cases are fixed by the user.
 
 
 ## User guide
