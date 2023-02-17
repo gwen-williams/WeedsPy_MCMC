@@ -1,6 +1,6 @@
 # WeedsPy_MCMC
 
-Repository still a work in progress!
+Repository and README still a work in progress!
 
 ## Dependencies
 
@@ -27,15 +27,16 @@ The estimation of the physical parameters of an astromonical source, such as col
 We include two generalised scripts, called `WeedsPy_MCMC.py` and `WeedsPy_MCMC.class`. Variables are set by the use in `paramfile.txt`, and are read in by the `read_param_file` function. We use the `emcee` Python package to explore the parameter space of the CLASS/Weeds LTE synthetic spectra. All function that carry out the emcee are located in a Python class object. Variables from the paramfile, and others set by the use in their main script, are passed to the class object. 
 
 These scripts give the user the option of exploring either 2, 4 or 5 free parameters in the synthetic spectra. The parameters explored are as follows:
-* two free parameters: column density and temperature
-* four free parameters: column density, temperature, centroid velocity, velocity width
-* five free parameters: column density, temperature, centroid velocity, velocity width, source size.
+* two free parameters : column density and temperature
+* four free parameters : column density, temperature, centroid velocity, velocity width
+* five free parameters : column density, temperature, centroid velocity, velocity width, source size.
+
 Missing parameters in these use-cases are fixed by the user.
 
 
 ## User guide
 
-We include two scripts, called WeedsPy.py and WeedsPy.class. Variables are set by the user in paramfile.txt, and read in by the read_params_file function.
+We include two scripts, called `WeedsPy_MCMC.py` and `WeedsPy_MCMC.class`. 
 
 
 ### Directories and files
@@ -52,7 +53,7 @@ Place the `WeedsPy_MCMC.py` and `WeedsPy_MCMC.class` scripts, and the parameter 
 
 ### Parameter file
 
-Most parameters required by the scripts are set in a parameter file, a template for which is given here called `paramfile.txt`. Here, we detail each parameter to be defined:
+Most parameters required by the scripts are set in a parameter file, and read in to a dictionary by the `read_params_file` function within `WeedsPy_MCMC.py`. A template parameter file is given here called `paramfile.txt`. Here, we detail each of the required parameters:
 
 * `catalog_name` : the name of the molecular line catalog for CLASS to use. Either the name of your own offline file, or cdms or jpl.
 * `molecule` :  name of molecule to be modelled, as it appears in the catalog.
@@ -71,20 +72,29 @@ Most parameters required by the scripts are set in a parameter file, a template 
 * `nwalkers` : number of emcee walkers
 * `freq_unit` : the unit of the frequency, either MHz, GHz, or Hz.
 
+For ease, other parameters that require significant tweaking should be set within the body of your main Python scripts. These include the values of any fixed parameters in your modelling, the priors, and the initial location of your walkers. Examples of how to do this are shown in the `example_scripts` sub-directory.
+
+
+### Observed spectra
+
+The scripts are currently setup to require you to place your observed spectra in the `spectra/` sub-directory. Currrently, your spectra must already be in the CLASS file format of `.30m` (the GILDAS/CLASS handbook details how to do the conversion), and your filename must follow the convention `spec_i100_j200.30m`, where `i100` refers to the x pixel coordinate of 100, and `j200` refers to the y pixel coordinate of 200.
+
 
 
 ### Running the scripts
 
-Start a CLASS terminal from the parent directory. To run the scripts, execute the following:
+Start a CLASS terminal from your parent directory. To run the scripts, execute the following:
 
 ```
 PYTHON WeedsPy_MCMC.py
 ```
 
+All functions to carry out the `emcee` sampling are placed inside a Python class within the `WeedsPy_MCMC.py` Python script. Unfortunately, due to the nesting of the Gildas/Python `Sic` commands, any calls to the Gildas/CLASS terminal with `Sic` will not be recognised if placed in a secondary Python script that is then called by a primary Python script. As such, the Python class object that contains all the functions to carry out the analysis must be placed in the preamble of your main Python script. Example scripts are shown in the `example_scripts` directory of how you should structure your analysis script.
+
 
 ## Future work
 
-* A biggest bottle-neck with this code is the run time. We are currently looking into parallelisation, and hope a future version will include an option for this.
+* The biggest bottle-neck with this code is the run time. We are currently looking into parallelisation, and hope a future version will include an option for this if possible.
 
 * We currently rely on the user to create the `.30m` files of their observed spectra themselves. A future version of this script will include a function that will do this for the user.
 
