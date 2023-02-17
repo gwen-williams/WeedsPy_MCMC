@@ -76,9 +76,6 @@ class WeedsPy_MCMC:
         bmaj,
         bmin,
         freq_unit,
-        freq_low,
-        freq_up,
-        peak_spec,
         telescope_diameter,
         vel_sys,
         vel_width,
@@ -112,9 +109,6 @@ class WeedsPy_MCMC:
         self.bmaj = bmaj
         self.bmin = bmin
         self.freq_unit = freq_unit
-        self.freq_low = freq_low
-        self.freq_up = freq_up
-        self.peak_spec = peak_spec
         self.telescope_diameter = telescope_diameter
         self.vel_sys = vel_sys
         self.vel_width = vel_width
@@ -127,8 +121,6 @@ class WeedsPy_MCMC:
         # Define CLASS variables:
         Sic.comm('define character*128 peakname')
         Sic.comm('define character*128 molecule')
-        Sic.comm('define real freq_lower')
-        Sic.comm('define real freq_upper')
         Sic.comm('define real telescope_diameter')
         Sic.comm('define character*128 t_cont')
         
@@ -136,9 +128,6 @@ class WeedsPy_MCMC:
         Sic.comm('let molecule '+str(self.molecule_name))
         Sic.comm('use in '+str(self.catalog_name))
         Sic.comm('set unit f')
-        Sic.comm('let freq_lower '+str(self.freq_low))
-        Sic.comm('let freq_upper '+str(self.freq_up))
-        Sic.comm('set mod y -1 '+str(self.peak_spec))
         Sic.comm('let telescope_diameter '+str(self.telescope_diameter))
         
         return
@@ -506,9 +495,6 @@ if __name__ == '__main__':
     bmaj = float(params['bmaj'])
     bmin = float(params['bmin'])
     freq_unit = str(params['freq_unit'])
-    freq_low = int(params['freq_lower'])
-    freq_up = int(params['freq_upper'])
-    peak_spec = int(params['peak_spec'])
     telescope_diameter = int(params['telescope_diameter'])
     
     # The power base of the column density. Easier to run emcee without the power and multiply it by this for the modelling
@@ -548,9 +534,6 @@ if __name__ == '__main__':
                       bmaj = bmaj,
                       bmin = bmin,
                       freq_unit = freq_unit,
-                      freq_low = freq_low,
-                      freq_up = freq_up,
-                      peak_spec = peak_spec,
                       telescope_diameter = telescope_diameter,
                       vel_sys = vel_sys,
                       vel_width = vel_width)
