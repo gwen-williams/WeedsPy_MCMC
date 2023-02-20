@@ -69,7 +69,7 @@ Most parameters required by the scripts are set in a parameter file, and read in
 * `nwalkers` : number of emcee walkers
 * `freq_unit` : the unit of the frequency, either MHz, GHz, or Hz.
 
-Other parameters that (in my experience) are regularly tweaked are set within the body of your main Python scripts, rather than the parameter file. Examples of how to do this are shown in the `example_scripts` sub-directory, but each one is detailed here too:
+Other parameters that (in my experience) are regularly tweaked are set within the body of your main Python scripts, rather than the parameter file. Examples of how to do this are shown in the `example_scripts` sub-directory, and each one is detailed here:
 
 * Initial walker positions : this should be a list, N elements long, where N is the number of free parameters.
 * The priors of your free parameters : this should be a list, Nx2 elements long. Each pair of numbers corresponds to the lower and upper bounds respectively of one of the free parameters. For example, for the case where there are 2 free parameters, 
@@ -88,7 +88,7 @@ These include the values of any fixed parameters in your modelling, the value ra
 
 ### Observed spectra
 
-The scripts are currently setup to require you to place your observed spectra in the `spectra/` sub-directory. Currrently, your spectra must already be in the CLASS file format of `.30m` (the GILDAS/CLASS handbook details how to do the conversion), and your filename must follow the convention `spec_i100_j200.30m`, where `i100` refers to the x pixel coordinate of 100, and `j200` refers to the y pixel coordinate of 200.
+The scripts are currently setup to require you to place your observed spectra in the `spectra/` sub-directory. Currrently, your spectra must already be in the CLASS file format of `.30m` (the GILDAS/CLASS handbook details how to do the conversion), and your filename must follow the convention `spec_iXX_jYY.30m`, where `XX` should be replaced by the integer value of the x pixel coordinate, and `YY` should be replaced by the integer value of the y pixel coordinate.
 
 
 
