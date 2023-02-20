@@ -79,7 +79,7 @@ Other parameters that (in my experience) are regularly tweaked are set within th
 	```
 	where `priors[0]` and `priors[1]` correspond to the lower and upper bounds of the column density, and `priors[2]` and `priors[3]` correspond to the lower and upper bounds of the temperature.
 
-* Number of free parameters. This is set in the script as the length of the initial walker position list.
+* Number of free parameters : This is set in the script as the length of the initial walker position list.
 * Base power of the column density : Here you should set the base value of the column density. For example, `column_base = 1e18`. The `emcee` sampler should be run on values of the column density / column_base. The base is applied outside of `emcee`.
 * Model parameters that are fixed. `source_size`, `vel_sys` and `vel_width` should be set to `None` if they are not fixed, or set to some float value if they are fixed.
 
@@ -89,6 +89,11 @@ These include the values of any fixed parameters in your modelling, the value ra
 ### Observed spectra
 
 The scripts are currently setup to require you to place your observed spectra in the `spectra/` sub-directory. Currrently, your spectra must already be in the CLASS file format of `.30m` (the GILDAS/CLASS handbook details how to do the conversion), and your filename must follow the convention `spec_iXX_jYY.30m`, where `XX` should be replaced by the integer value of the x pixel coordinate, and `YY` should be replaced by the integer value of the y pixel coordinate.
+
+
+### CLASS-readable model files
+
+The `make_gildas_mdl_file` function creates a CLASS-readable file that contains the name of the molecules to be modelled, the value of the parameters that the `emcee` sampler has walked to and (if any) the value of the fixed parameters. During the `emcee` iterations, these files are saved as temporary files that continually get overwritten, are placed in the `mdlfiles/` sub-directory, and are called `temp_mdlfile.mdl`. After the `emcee` has walked all of its iterations, the highest likelihood model files is made by the `save_highest_likelihood_spectrum` function and is saved as `best_mdlfile_iXX_jYY.mdl` where XX and YY are replaced by the integer value of the x and y pixel coordinates respectively.
 
 
 
