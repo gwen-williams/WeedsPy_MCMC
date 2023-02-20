@@ -360,8 +360,9 @@ class WeedsPy_MCMC:
         
         # Get the results
         theta_max = sampler.flatchain[np.argmax(sampler.flatlnprobability)]
-        theta_max[0] = theta_max[0]*self.column_base
-        np.savetxt('theta_max/theta_max_flatlnprob_i{0}_j{1}.csv'.format(ii,jj),theta_max,delimiter=',')
+        theta_save = theta_max.copy()
+        theta_save[0] = theta_save[0]*self.column_base
+        np.savetxt('theta_max/theta_max_flatlnprob_i{0}_j{1}.csv'.format(ii,jj),theta_save,delimiter=',')
 
 
         # Get the highest likelihood parameters and their errors
