@@ -594,8 +594,8 @@ if __name__ == '__main__':
 
     
     # Read in the data    
-    pixi = np.array([288]) # x pixel coord
-    pixj = np.array([296]) # y pixel coord
+    pix_x = np.array([288]) # x pixel coord
+    pix_y = np.array([296]) # y pixel coord
     tcont = np.array([22.062]) # continuum level (in Kelvin) at that pixel
     npix = len(pixi)
     
@@ -603,7 +603,7 @@ if __name__ == '__main__':
     # Loop over each of the pixels
     for ind in range(0,npix):
         
-        peakname = 'spectra/spec_i{0}_j{1}.30m'.format(pixi[ind],pixj[ind])
+        peakname = 'spectra/spec_i{0}_j{1}.30m'.format(pix_x[ind],pix_y[ind])
         obs = fits.open(peakname[:-4]+'.fits')[0]
         ydata = np.asarray(obs.data).flatten()
         xdata = np.arange(0,len(ydata))
@@ -616,7 +616,7 @@ if __name__ == '__main__':
         W.convert_noise_to_K()
         
         # Run the emcee:        
-        samples, samples_flat, results, results_err_up, results_err_low = W.run_emcee(xdata,ydata,pixi[ind],pixj[ind])
+        samples, samples_flat, results, results_err_up, results_err_low = W.run_emcee(xdata,ydata,pix_x[ind],pix_y[ind])
         
                      
        
