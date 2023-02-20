@@ -127,6 +127,10 @@ class WeedsPy_MCMC:
         Sic.comm('define character*128 molecule')
         Sic.comm('define real telescope_diameter')
         Sic.comm('define character*128 t_cont')
+        Sic.comm('define character*128 pixi')
+        Sic.comm('define character*128 pixj')
+        Sic.comm('define character*128 min_spec')
+        Sic.comm('define character*128 max_spec')
         
         # Pass some of these input parameters to CLASS, and set some plot ranges:
         Sic.comm('let molecule '+str(self.molecule_name))
@@ -374,8 +378,13 @@ class WeedsPy_MCMC:
             results_err_low.append(errors[0])
             results_err_up.append(errors[1])
         
-        # Save the best spectrum
+        # Save the best spectrum:
         save_highest_likelihood_spectrum(theta_max,ii,jj)
+
+        # Save plots of the results:
+        self.plot_corner(samples_flat,ii,jj)
+        self.plot_chains(samples,ii,jj)
+        self.plot_spectrum(ii,jj,ydata)
         
         return samples, samples_flat, results, results_err_up, results_err_low
         
@@ -447,19 +456,25 @@ class WeedsPy_MCMC:
         return fig
 
 
-    def plot_spectrum(self,ii,jj):
+    def plot_spectrum(self,ii,jj,y_data):
 
-        # Make plot:
+        # Get min and max of the spectrum:
+        min_spec, max_spec = np.min(y_data), np.max(y_data)
+        Sic.comm('let min_spec '+str(min_spec))
+        Sic.comm('let max_spec '+str(max_spec))
+
+        # Make plot box:
         Sic.comm('cl')
-        Sic.comm('pen /w 3 /col 0')
-        Sic.comm('box')
+        Sic.comm('pen /w 3 /col 0 /dash 0') # Black pen
         Sic.comm('greg\draw t -2 2 "Intensity (K)" 4 90 /box 4')
+        Sic.comm("set mod y 'min_spec' 'max_spec'")
+        Sic.comm('box')
         
         # Original spectrum
         Sic.comm('retrieve OBS')
         Sic.comm('spectrum')
         
-        Sic.comm('pen /w 3 /col 1 /dash 1') # Red pen
+        Sic.comm('pen /w 3 /col 1 /dash 2') # Red pen
         
         # Synthetic spectrum
         Sic.comm('retrieve TB_MODEL')
@@ -575,10 +590,7 @@ if __name__ == '__main__':
     
     # Set the variables in GILDAS
     W.set_gildas_variables()
-    
-    
-    # Flag to make plots or not (True = yes, False = no)
-    make_plots = True
+
     
     # Read in the data    
     pixi = np.array([288]) # x pixel coord
@@ -586,7 +598,7 @@ if __name__ == '__main__':
     tcont = np.array([22.062]) # continuum level (in Kelvin) at that pixel
     npix = len(pixi)
     
-    
+
     # Loop over each of the pixels
     for ind in range(0,npix):
         
@@ -602,16 +614,8 @@ if __name__ == '__main__':
         # Convert the noise to Kelvin:
         W.convert_noise_to_K()
         
-        # don't need the x and y data defined in the self, can define them here
-        #samples, samples_flat, N, N_err_up, N_err_low, T, T_err_up, T_err_low, V, V_err_up, V_err_low, dV, dV_err_up, dV_err_low = tt.run_emcee(xdata,ydata,pixi[ind],pixj[ind])
+        # Run the emcee:        
         samples, samples_flat, results, results_err_up, results_err_low = W.run_emcee(xdata,ydata,pixi[ind],pixj[ind])
-        
-        if make_plots == True:
-            # Corner plot
-            W.plot_corner(samples_flat,pixi[ind],pixj[ind])
-            # Trace plot of chains
-            W.plot_chains(samples,pixi[ind],pixj[ind])
-            
         
                      
        

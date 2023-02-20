@@ -13,23 +13,29 @@ import corner
 #matplotlib.use('TkAgg')
 
 
-""" 
-Below is the WeedsPy_MCMC class object.
-
-Both the class, and the executable script, must be present in the same .py file.
-This is because of the nesting of the Python/Gildas Sic commands. 
-Sic commands implemented in a separate .py script will not execute.
-
 """
 
+Below is the WeedsPy_MCMC class and the read_params_file function, and an
+example of a script that uses these functions.
+
+Both the class, and the executable script, must be present in the same .py file:
+
+Any Sic commands made to Gildas/CLASS in Python scripts that are placed in a
+separate module script would not be recognised by Gildas/CLASS due to the
+nesting. Sic commands must be placed in the primary Python script you execute,
+Therefore you cannot place the below WeedsPy_MCMC class and the read_params_file
+function in a separate module.
+You must place them instead in the preamble of your executable script.
+Place your executable scripts after: if __name__ == '__main__':
+"""
 
 
 def read_params_file(paramfile):
     """
     Function to read in the parameter file.
     This function is defined outside of the WeedsPy_MCMC class object, 
-    because it passes these are the input arguments that will be passed 
-    to the WeedsPy_MCMC class object
+    because it reads the input parameters that will be passed later 
+    to the WeedsPy_MCMC class
     """
 
     params={}
@@ -58,7 +64,6 @@ def read_params_file(paramfile):
 
 class WeedsPy_MCMC:
     
-    
     def __init__(self, 
         catalog_name, 
         molecule_name,
@@ -76,21 +81,17 @@ class WeedsPy_MCMC:
         bmaj,
         bmin,
         freq_unit,
-        freq_low,
-        freq_up,
-        peak_spec,
         telescope_diameter,
         vel_sys,
-        vel_width,
-        
+        vel_width,    
     ):
-        
         
         """
         
         This class takes in the spectrum to the modelled by Weeds, and uses
         emcee to determine the parameters of the synthetic spectra.
         This is not a best fit spectrum, rather a highest likelihood spectrum.
+
         
         Parameters:
             
@@ -112,9 +113,6 @@ class WeedsPy_MCMC:
         self.bmaj = bmaj
         self.bmin = bmin
         self.freq_unit = freq_unit
-        self.freq_low = freq_low
-        self.freq_up = freq_up
-        self.peak_spec = peak_spec
         self.telescope_diameter = telescope_diameter
         self.vel_sys = vel_sys
         self.vel_width = vel_width
@@ -127,18 +125,17 @@ class WeedsPy_MCMC:
         # Define CLASS variables:
         Sic.comm('define character*128 peakname')
         Sic.comm('define character*128 molecule')
-        Sic.comm('define real freq_lower')
-        Sic.comm('define real freq_upper')
         Sic.comm('define real telescope_diameter')
         Sic.comm('define character*128 t_cont')
+        Sic.comm('define character*128 pixi')
+        Sic.comm('define character*128 pixj')
+        Sic.comm('define character*128 min_spec')
+        Sic.comm('define character*128 max_spec')
         
         # Pass some of these input parameters to CLASS, and set some plot ranges:
         Sic.comm('let molecule '+str(self.molecule_name))
         Sic.comm('use in '+str(self.catalog_name))
         Sic.comm('set unit f')
-        Sic.comm('let freq_lower '+str(self.freq_low))
-        Sic.comm('let freq_upper '+str(self.freq_up))
-        Sic.comm('set mod y -1 '+str(self.peak_spec))
         Sic.comm('let telescope_diameter '+str(self.telescope_diameter))
         
         return
@@ -381,8 +378,13 @@ class WeedsPy_MCMC:
             results_err_low.append(errors[0])
             results_err_up.append(errors[1])
         
-        # Save the best spectrum
+        # Save the best spectrum:
         save_highest_likelihood_spectrum(theta_max,ii,jj)
+
+        # Save plots of the results:
+        self.plot_corner(samples_flat,ii,jj)
+        self.plot_chains(samples,ii,jj)
+        self.plot_spectrum(ii,jj,ydata)
         
         return samples, samples_flat, results, results_err_up, results_err_low
         
@@ -452,6 +454,42 @@ class WeedsPy_MCMC:
         fig.savefig('plots/chains_i{0}_j{1}.pdf'.format(ii,jj),bbox_inches='tight')
         
         return fig
+
+
+    def plot_spectrum(self,ii,jj,y_data):
+
+        # Get min and max of the spectrum:
+        min_spec, max_spec = np.min(y_data), np.max(y_data)
+        Sic.comm('let min_spec '+str(min_spec))
+        Sic.comm('let max_spec '+str(max_spec))
+
+        # Make plot box:
+        Sic.comm('cl')
+        Sic.comm('pen /w 3 /col 0 /dash 0') # Black pen
+        Sic.comm('greg\draw t -2 2 "Intensity (K)" 4 90 /box 4')
+        Sic.comm("set mod y 'min_spec' 'max_spec'")
+        Sic.comm('box')
+        
+        # Original spectrum
+        Sic.comm('retrieve OBS')
+        Sic.comm('spectrum')
+        
+        Sic.comm('pen /w 3 /col 1 /dash 2') # Red pen
+        
+        # Synthetic spectrum
+        Sic.comm('retrieve TB_MODEL')
+        Sic.comm('spectrum')
+
+        # Set the pixi and pixj variables:
+        Sic.comm('let pixi '+str(ii))
+        Sic.comm('let pixj '+str(jj))
+        
+        # Save
+        Sic.comm("hard plots/spec_i'pixi'_j'pixj'.eps /dev eps color /over")
+        # Clear the plot
+        Sic.comm("cl")
+
+        return
     
     
     def convert_noise_to_K(self):
@@ -485,7 +523,6 @@ class WeedsPy_MCMC:
         self.rms_noise_unit = 'K'
         
         return rms_kelvin
-    
     
     
             
@@ -560,9 +597,6 @@ if __name__ == '__main__':
     W.set_gildas_variables()
     
     
-    # Flag to make plots or not (True = yes, False = no)
-    make_plots = True
-    
     # Read in the data
     pixi = np.array([288]) # x pixel coord
     pixj = np.array([296]) # y pixel coord
@@ -585,16 +619,7 @@ if __name__ == '__main__':
         # Convert the noise to Kelvin:
         W.convert_noise_to_K()
         
-        # don't need the x and y data defined in the self, can define them here
-        #samples, samples_flat, N, N_err_up, N_err_low, T, T_err_up, T_err_low, V, V_err_up, V_err_low, dV, dV_err_up, dV_err_low = tt.run_emcee(xdata,ydata,pixi[ind],pixj[ind])
+        # Run the emcee
         samples, samples_flat, results, results_err_up, results_err_low = W.run_emcee(xdata,ydata,pixi[ind],pixj[ind])
-        
-        if make_plots == True:
-            # Corner plot
-            W.plot_corner(samples_flat,pixi[ind],pixj[ind])
-            # Trace plot of chains of the production run
-            W.plot_chains(samples,pixi[ind],pixj[ind])
-            
-        
                      
        
