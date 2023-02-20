@@ -20,18 +20,18 @@ The following Python packages are required:
 For users of Anaconda on Mac: CLASS' preferred install method on Mac is through MacPorts. These scripts utilise CLASS' ability to talk to Python -- CLASS does not talk to the Anaconda-installed Python, nor the Anacaonda `pip`. It is advised that you have a MacPorts-installed Python as well, and use the system `pip` to install Python packages, otherwise these scripts will not run.
 
 
-## Script methodology
+## Overview of script methodology
 
-The [Weeds extension](https://www.iram.fr/IRAMFR/GILDAS/doc/pdf/weeds.pdf) of the CLASS software (part of the Gildas package) is a software that allows the analysis of synthetic spectra following the solving of the radiative transfer equation [(Maret et al. 2011)](https://ui.adsabs.harvard.edu/abs/2011A%26A...526A..47M/abstract). The JPL and CDMS catalogs are used to gather information about the modelled molecular lines such as the Einstein coefficients, partition function, and upper energy level degeneracy and energy. Model parameters that are set by the user are the column density, excitation temperature, centroid velocity, FWHM velocity width, and source size. Weeds however does not allow the user the efficiently explore this parameter space, leaving the user to manually change them. The `WeedsPy_MCMC` scripts we present here use the in-built functionality of CLASS to talk to Python to facilitate a Bayesian analysis of the parameter space in the LTE modelling using the `emcee` Python package.
+The [Weeds extension](https://www.iram.fr/IRAMFR/GILDAS/doc/pdf/weeds.pdf) of the CLASS software (part of the Gildas package) is a radiative transfer code that produces synthetic emission spectra for various molecules assuming local thermodynamic equilibrium [(Maret et al. 2011)](https://ui.adsabs.harvard.edu/abs/2011A%26A...526A..47M/abstract). Model parameters that are set by the user are the column density, excitation temperature, centroid velocity, FWHM velocity width, and source size. Weeds however does not allow the user the efficiently explore this parameter space, leaving the user to manually change them. The `WeedsPy_MCMC` scripts we present here use the in-built functionality of Gildas/CLASS to talk to Python to facilitate a Bayesian analysis of the parameter space in the LTE synthetic spectra using the `emcee` Python package.
 
-We include two generalised scripts, called `WeedsPy_MCMC.py` and `WeedsPy_MCMC.class`. Most variables are set by the use in `paramfile.txt`, and are read in by the `read_param_file` function. We use the `emcee` Python package to explore the parameter space of the synthetic spectra. All function that carry out the emcee are located in a Python class in `WeedsPy_MCMC.py`.
+We include two generalised scripts, called `WeedsPy_MCMC.py` and `WeedsPy_MCMC.class`. Most variables are set by the user in `paramfile.txt`, and are read in by the `read_param_file` function. We use the `emcee` Python package to explore the parameter space of the synthetic spectra. All functions that carry out the emcee are located in a Python class in `WeedsPy_MCMC.py`.
 
-These scripts give the user the option of exploring either 2, 4 or 5 free parameters in the synthetic spectra. The parameters explored are as follows:
+These scripts give the user the option of exploring either 2, 4 or 5 free parameters in the synthetic spectra. The parameters explored in each case are as follows:
 * two free parameters : column density and temperature
 * four free parameters : column density, temperature, centroid velocity, velocity width
 * five free parameters : column density, temperature, centroid velocity, velocity width, source size.
 
-Missing parameters in these use-cases are fixed by the user.
+Parameters not listed as free in each of these use-cases are fixed by the user.
 
 
 ## User guide
@@ -69,7 +69,20 @@ Most parameters required by the scripts are set in a parameter file, and read in
 * `nwalkers` : number of emcee walkers
 * `freq_unit` : the unit of the frequency, either MHz, GHz, or Hz.
 
-Other parameters that require significant tweaking should be set within the body of your main Python scripts, rather than the parameter file. These include the values of any fixed parameters in your modelling, the value range of your priors, and the initial location of your walkers. Examples of how to do this are shown in the `example_scripts` sub-directory.
+Other parameters that (in my experience) are regularly tweaked are set within the body of your main Python scripts, rather than the parameter file. Examples of how to do this are shown in the `example_scripts` sub-directory, but each one is detailed here too:
+
+* Initial walker positions : this should be a list, N elements long, where N is the number of free parameters.
+* The priors of your free parameters : this should be a list, Nx2 elements long. Each pair of numbers corresponds to the lower and upper bounds respectively of one of the free parameters. For example, for the case where there are 2 free parameters, 
+
+	```
+	priors = [0.5, 1.5, 100., 200.]
+	```
+	where `priors[0]` and `priors[1]` correspond to the lower and upper bounds of the column density, and `priors[2]` and `priors[3]` correspond to the lower and upper bounds of the temperature.
+
+* Number of free parameters. This is
+* Model parameters that are fixed. `source_size`, `vel_sys` and `vel_width` should be set to `None` if they are not fixed, or set to some float value if they are fixed.
+
+These include the values of any fixed parameters in your modelling, the value range of your priors, and the initial location of your walkers. Examples of how to do this are shown in the `example_scripts` sub-directory.
 
 
 ### Observed spectra
@@ -86,12 +99,12 @@ Start a CLASS terminal from your parent directory. To run the scripts, execute t
 PYTHON WeedsPy_MCMC.py
 ```
 
-All functions to carry out the `emcee` sampling are placed inside a Python class within the `WeedsPy_MCMC.py` Python script. Unfortunately, due to the nesting of the Gildas/Python `Sic` commands, any calls to the Gildas/CLASS terminal with `Sic` will not be recognised if placed in a secondary Python script that is then called by a primary Python script. As such, the Python class object that contains all the functions to carry out the analysis must be placed in the preamble of your main Python script. Example scripts are shown in the `example_scripts` directory of how you should structure your analysis script.
+All functions to carry out the `emcee` sampling are placed inside a Python class within the `WeedsPy_MCMC.py` Python script. Unfortunately, due to the nesting of the Gildas/Python `Sic` commands, any calls to the Gildas/CLASS terminal with `Sic` will not be recognised if placed in a secondary Python script that is then called by the primary Python script you run in the CLASS terminal. As such, the Python class that contains all the functions to carry out the analysis must be placed in the preamble of your main Python script. Example scripts are shown in the `example_scripts` directory of how you should structure your analysis script.
 
 
 ## Future work
 
-* The biggest bottle-neck with this code is the run time. We are currently looking into parallelisation, and hope a future version will include an option for this if possible.
+* These scripts are not parallelised. We are currently looking into parallelisation, and hope a future version will include an option for this if possible.
 
 * We currently rely on the user to create the `.30m` files of their observed spectra themselves. A future version of this script may include a function to convert `.fits` files to `.30m` files.
 
