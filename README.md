@@ -81,19 +81,31 @@ Other parameters that (in my experience) are regularly tweaked are set within th
 
 * Number of free parameters : This is set in the script as the length of the initial walker position list.
 * Base power of the column density : Here you should set the base value of the column density. For example, `column_base = 1e18`. The `emcee` sampler should be run on values of the column density / column_base. The base is applied outside of `emcee`.
-* Model parameters that are fixed. `source_size`, `vel_sys` and `vel_width` should be set to `None` if they are not fixed, or set to some float value if they are fixed.
+* Model parameters that are fixed : `source_size`, `vel_sys` and `vel_width` should be set to `None` if they are not fixed, or set to some float value if they are fixed.
 
 These include the values of any fixed parameters in your modelling, the value range of your priors, and the initial location of your walkers. Examples of how to do this are shown in the `example_scripts` sub-directory.
 
 
 ### Observed spectra
 
-The scripts are currently setup to require you to place your observed spectra in the `spectra/` sub-directory. Currrently, your spectra must already be in the CLASS file format of `.30m` (the GILDAS/CLASS handbook details how to do the conversion), and your filename must follow the convention `spec_iXX_jYY.30m`, where `XX` should be replaced by the integer value of the x pixel coordinate, and `YY` should be replaced by the integer value of the y pixel coordinate.
+The scripts are currently setup to require you to place your observed spectra in the `spectra/` sub-directory. Currrently, your spectra must already be in the CLASS file format of `.30m` (the GILDAS/CLASS handbook details how to do the conversion), and must already to converted to brightness temperature (units of Kelvin). Your filename must follow the convention `spec_iXX_jYY.30m`, where `XX` and `YY` should be replaced by the integer values of the x and y pixel coordinates respectively.
 
 
-### CLASS-readable model files
+
+### Saved results
+
+In all of the following filenames, `XX` and `YY` refer to the integer value of the x and y pixel coordinate of the current spectrum respectively. 
 
 The `make_gildas_mdl_file` function creates a CLASS-readable file that contains the name of the molecules to be modelled, the value of the parameters that the `emcee` sampler has walked to and (if any) the value of the fixed parameters. During the `emcee` iterations, these files are saved as temporary files that continually get overwritten, are placed in the `mdlfiles/` sub-directory, and are called `temp_mdlfile.mdl`. After the `emcee` has walked all of its iterations, the highest likelihood model files is made by the `save_highest_likelihood_spectrum` function and is saved as `best_mdlfile_iXX_jYY.mdl` where XX and YY are replaced by the integer value of the x and y pixel coordinates respectively.
+
+The synthetic spectrum produced by CLASS at the parameters within the CLASS-readable .mdl files are saved in temporary files that continually get overwritten during the `emcee` iterations, and are saved in the `synthfiles/` sub-directory with filenames `temp_synthfile.fits` and `temp_synthfile.30m`. After the `emcee` has walked all of its iterations, the synthetic spectrum with the highest likelihood parameters are saved by the `save_highest_likelihood_spectrum` function to filenames `best_synthfile_iXX_jYY.fits` and `best_synthfile_iXX_jYY.30m`.
+
+The highest likelihood model parameters are saved in the `theta_max/` sub-directory in files called `theta_max_flatlnprob_iXX_jYY.csv`. 
+
+The full flatchain of the `emcee` sampler is saved in the `samples/` sub-directory in files called `samples_flatchain_iXX_jYY.csv`. 
+
+Plots of the walker chains, the corner plot, and the spectrum with overplotted highest-likelihood synthetic spectrum are saved in the `plots/` sub-directory, and are called `chains_iXX_jYY.pdf`, `corner_iXX_jYY.pdf`, and `spec_iXX_jYY.eps` respectively.
+
 
 
 
@@ -106,6 +118,8 @@ PYTHON WeedsPy_MCMC.py
 ```
 
 All functions to carry out the `emcee` sampling are placed inside a Python class within the `WeedsPy_MCMC.py` Python script. Unfortunately, due to the nesting of the Gildas/Python `Sic` commands, any calls to the Gildas/CLASS terminal with `Sic` will not be recognised if placed in a secondary Python script that is then called by the primary Python script you run in the CLASS terminal. As such, the Python class that contains all the functions to carry out the analysis must be placed in the preamble of your main Python script. Example scripts are shown in the `example_scripts` directory of how you should structure your analysis script.
+
+The code is written to be run on a number of pixels consecutively, with a continuum brightness value per pixel. The x and y pixel coordinates should be saved in text files and read in in your script. Examples of this are shown in the `example_scripts/` sub-directory. The x and y pixel coordinates are currently required for the filenames of all files saved by the script (as detailed above). The `WeedsPy_MCMC_2params.py` scripts in the `example_scripts/` sub-directory shows an example script set-up for multiple pixels. The `WeedsPy_MCMC_4params.py` scripts in the `example_scripts/` sub-directory shows an example script set-up for one pixel.
 
 
 ## Future work
