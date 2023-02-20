@@ -13,23 +13,29 @@ import corner
 #matplotlib.use('TkAgg')
 
 
-""" 
-Below is the WeedsPy_MCMC class object.
-
-Both the class, and the executable script, must be present in the same .py file.
-This is because of the nesting of the Python/Gildas Sic commands. 
-Sic commands implemented in a separate .py script will not execute.
-
 """
 
+Below is the WeedsPy_MCMC class and the read_params_file function, and an
+example of a script that uses these functions.
+
+Both the class, and the executable script, must be present in the same .py file:
+
+Any Sic commands made to Gildas/CLASS in Python scripts that are placed in a
+separate module script would not be recognised by Gildas/CLASS due to the
+nesting. Sic commands must be placed in the primary Python script you execute,
+Therefore you cannot place the below WeedsPy_MCMC class and the read_params_file
+function in a separate module.
+You must place them instead in the preamble of your executable script.
+Place your executable scripts after: if __name__ == '__main__':
+"""
 
 
 def read_params_file(paramfile):
     """
     Function to read in the parameter file.
     This function is defined outside of the WeedsPy_MCMC class object, 
-    because it passes these are the input arguments that will be passed 
-    to the WeedsPy_MCMC class object
+    because it reads the input parameters that will be passed later 
+    to the WeedsPy_MCMC class
     """
 
     params={}
@@ -58,7 +64,6 @@ def read_params_file(paramfile):
 
 class WeedsPy_MCMC:
     
-    
     def __init__(self, 
         catalog_name, 
         molecule_name,
@@ -78,16 +83,15 @@ class WeedsPy_MCMC:
         freq_unit,
         telescope_diameter,
         vel_sys,
-        vel_width,
-        
+        vel_width,    
     ):
-        
         
         """
         
         This class takes in the spectrum to the modelled by Weeds, and uses
         emcee to determine the parameters of the synthetic spectra.
         This is not a best fit spectrum, rather a highest likelihood spectrum.
+
         
         Parameters:
             
@@ -441,6 +445,36 @@ class WeedsPy_MCMC:
         fig.savefig('plots/chains_i{0}_j{1}.pdf'.format(ii,jj),bbox_inches='tight')
         
         return fig
+
+
+    def plot_spectrum(self,ii,jj):
+
+        # Make plot:
+        Sic.comm('cl')
+        Sic.comm('pen /w 3 /col 0')
+        Sic.comm('box')
+        Sic.comm('greg\draw t -2 2 "Intensity (K)" 4 90 /box 4')
+        
+        # Original spectrum
+        Sic.comm('retrieve OBS')
+        Sic.comm('spectrum')
+        
+        Sic.comm('pen /w 3 /col 1 /dash 1') # Red pen
+        
+        # Synthetic spectrum
+        Sic.comm('retrieve TB_MODEL')
+        Sic.comm('spectrum')
+
+        # Set the pixi and pixj variables:
+        Sic.comm('let pixi '+str(ii))
+        Sic.comm('let pixj '+str(jj))
+        
+        # Save
+        Sic.comm("hard plots/spec_i'pixi'_j'pixj'.eps /dev eps color /over")
+        # Clear the plot
+        Sic.comm("cl")
+
+        return
     
     
     def convert_noise_to_K(self):
