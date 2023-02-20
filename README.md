@@ -79,7 +79,8 @@ Other parameters that (in my experience) are regularly tweaked are set within th
 	```
 	where `priors[0]` and `priors[1]` correspond to the lower and upper bounds of the column density, and `priors[2]` and `priors[3]` correspond to the lower and upper bounds of the temperature.
 
-* Number of free parameters. This is
+* Number of free parameters. This is set in the script as the length of the initial walker position list.
+* Base power of the column density : Here you should set the base value of the column density. For example, `column_base = 1e18`. The `emcee` sampler should be run on values of the column density / column_base. The base is applied outside of `emcee`.
 * Model parameters that are fixed. `source_size`, `vel_sys` and `vel_width` should be set to `None` if they are not fixed, or set to some float value if they are fixed.
 
 These include the values of any fixed parameters in your modelling, the value range of your priors, and the initial location of your walkers. Examples of how to do this are shown in the `example_scripts` sub-directory.
