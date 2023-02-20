@@ -67,7 +67,7 @@ Most parameters required by the scripts are set in a parameter file, and read in
 * `nburn` : number of emcee burn iterations
 * `nprod` :	number of emcee production iterations
 * `nwalkers` : number of emcee walkers
-* `freq_unit` : the unit of the frequency, either MHz, GHz, or Hz.
+* `freq_unit` : the unit of the frequency, either Hz, kHz, MHz or GHz.
 
 Other parameters that (in my experience) are regularly tweaked are set within the body of your main Python scripts, rather than the parameter file. Examples of how to do this are shown in the `example_scripts` sub-directory, and each one is detailed here:
 
