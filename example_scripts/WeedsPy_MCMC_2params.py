@@ -466,7 +466,7 @@ class WeedsPy_MCMC:
 
         # Make plot box:
         Sic.comm('cl')
-        Sic.comm('pen /w 3 /col 0 /dash 0') # Black pen
+        Sic.comm('pen /w 3 /col 0 /dash 1') # Black pen
         Sic.comm('greg\draw t -2 2 "Intensity (K)" 4 90 /box 4')
         Sic.comm("set mod y 'min_spec' 'max_spec'")
         Sic.comm('box')
@@ -601,7 +601,7 @@ if __name__ == '__main__':
     pix_x = np.loadtxt('x_pixel_coords.csv') # x pixel coords
     pix_y = np.loadtxt('y_pixel_coords.csv') # y pixel coords
     tcont = np.loadtxt('t_cont.csv') # continuum level (in Kelvin) at each pixel
-    npix = len(pixi)
+    npix = len(pix_x)
     
     
     # Loop over each of the pixels
