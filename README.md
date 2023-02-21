@@ -36,7 +36,7 @@ Parameters not listed as free in each of these use-cases are fixed by the user.
 
 ## User guide
 
-We include two scripts, called `WeedsPy_MCMC.py` and `WeedsPy_MCMC.class`. 
+We include two scripts, called `WeedsPy_MCMC.py` and `WeedsPy_MCMC.class`. Example scripts for different use cases are included in the `example_scripts/` directory.
 
 
 ### Directories and files
@@ -51,7 +51,7 @@ Place the `WeedsPy_MCMC.py` and `WeedsPy_MCMC.class` scripts, and the parameter 
 * `theta_max/` : to contain `.csv` files that store the highest likelihood values.
 
 
-### Parameter file
+### Parameters
 
 Most parameters required by the scripts are set in a parameter file, and read in to a dictionary by the `read_params_file` function within `WeedsPy_MCMC.py`. A template parameter file is given here called `paramfile.txt`. Here, we detail each of the required parameters:
 
@@ -80,8 +80,8 @@ Other parameters that (in my experience) are regularly tweaked are set within th
 	where `priors[0]` and `priors[1]` correspond to the lower and upper bounds of the column density, and `priors[2]` and `priors[3]` correspond to the lower and upper bounds of the temperature.
 
 * Number of free parameters : This is set in the script as the length of the initial walker position list.
-* Base power of the column density : Here you should set the base value of the column density. For example, `column_base = 1e18`. The `emcee` sampler should be run on values of the column density / column_base. The base is applied outside of `emcee`.
-* Model parameters that are fixed : `source_size`, `vel_sys` and `vel_width` should be set to `None` if they are not fixed, or set to some float value if they are fixed.
+* Base power of the column density : Here you should set the base value of the column density. For example, `column_base = 1e18`. The `emcee` sampler is run on values of the column density / column_base, and the base is applied outside of `emcee`.
+* Model parameters that are fixed : `source_size`, `vel_sys` and `vel_width` refer to the source size, centroid velocity, and wvelocity width. They should be set to `None` if you intend them to be free parameters, or set to your fixed (float) values if you intend them to be fixed parameters.
 
 These include the values of any fixed parameters in your modelling, the value range of your priors, and the initial location of your walkers. Examples of how to do this are shown in the `example_scripts` sub-directory.
 
@@ -108,7 +108,6 @@ Plots of the walker chains, the corner plot, and the spectrum with overplotted h
 
 
 
-
 ### Running the scripts
 
 Start a CLASS terminal from your parent directory. To run the scripts, execute the following:
@@ -117,7 +116,7 @@ Start a CLASS terminal from your parent directory. To run the scripts, execute t
 PYTHON WeedsPy_MCMC.py
 ```
 
-All functions to carry out the `emcee` sampling are placed inside a Python class within the `WeedsPy_MCMC.py` Python script. Unfortunately, due to the nesting of the Gildas/Python `Sic` commands, any calls to the Gildas/CLASS terminal with `Sic` will not be recognised if placed in a secondary Python script that is then called by the primary Python script you run in the CLASS terminal. As such, the Python class that contains all the functions to carry out the analysis must be placed in the preamble of your main Python script. Example scripts are shown in the `example_scripts` directory of how you should structure your analysis script.
+All functions to carry out the `emcee` sampling are placed inside a Python class within the `WeedsPy_MCMC.py` Python script. Unfortunately, due to the nesting of the Gildas/Python `Sic` commands, any calls to the Gildas/CLASS terminal with `Sic` will not be recognised if placed in a secondary Python script that is then called by the primary Python script you run in the CLASS terminal. As such, the Python class that contains all the functions to carry out the analysis must be placed in the preamble of your main Python script, rather than used as a separate module. Example scripts are shown in the `example_scripts` directory of how you should structure your analysis script.
 
 The code is written to be run on a number of pixels consecutively, with a continuum brightness value per pixel. The x and y pixel coordinates should be saved in text files and read in in your script. Examples of this are shown in the `example_scripts/` sub-directory. The x and y pixel coordinates are currently required for the filenames of all files saved by the script (as detailed above). The `WeedsPy_MCMC_2params.py` scripts in the `example_scripts/` sub-directory shows an example script set-up for multiple pixels. The `WeedsPy_MCMC_4params.py` scripts in the `example_scripts/` sub-directory shows an example script set-up for one pixel.
 
@@ -126,7 +125,9 @@ The code is written to be run on a number of pixels consecutively, with a contin
 
 * These scripts are not parallelised. We are currently looking into parallelisation, and hope a future version will include an option for this if possible.
 
-* We currently rely on the user to create the `.30m` files of their observed spectra themselves. A future version of this script may include a function to convert `.fits` files to `.30m` files.
+* We currently rely on the user to create the `.30m` files of their observed spectra themselves. The Gildas/CLASS manual details how to do this, but a future version of this code may include a function to convert `.fits` files to `.30m` files.
+
+* Querying the online CDMS and JPL catalogs for every iteration of every walker is very slow indeed. The code runs significantly faster if querying an offline version of the molecular line catalog. Instructions on how to save an offline copy of a portion of either of the two online databases are given in the CLASS/Weeds manual. Using your own offline copy is supported here (by placing the filename in the `catalog_name` parameter of the paramfile), however we have not included a function to create the offline database copy in the first place. We aim to include a function to do this in a future version of this code.
 
 
 ## Citing the code 
