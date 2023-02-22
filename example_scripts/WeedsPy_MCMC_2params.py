@@ -562,7 +562,7 @@ if __name__ == '__main__':
     # Number of parameters to fit:
     n_dim = len(initial)
     
-    # Set the value of the parameters that will either be fixed, or will NOT be modelled:
+    # Set the value of some of the model parameters:
     # If they are free parameters, set them to None. If they are fixed parameters, give them a value.
     source_size = float(params['source_size'])
     vel_sys = 59.7      # centroid velocity, km/s

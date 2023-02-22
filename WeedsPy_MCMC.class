@@ -1,8 +1,8 @@
 !# =============================================================================
-!#                               WeedsPy.class                                 #
+!#                            WeedsPy_MCMC.class                               #
 !#                     Author: Dr. Gwenllian M. Williams                       #       
 !# =============================================================================
-!# Creates synthetic spectra with Weeds, with parameters defined in WeedsPy.py #
+!# Makes synthetic spectra with Weeds, & parameters defined in WeedsPy_MCMC.py #
 !# =============================================================================
 
 
@@ -35,28 +35,3 @@ fits write synthfiles/temp_synthfile.fits /mode spectrum
 
 ! Clear any plots
 cl
-
-
-! Optional: the following makes a plot, comments out a ! point to use it:
-!
-!
-!!! Make plot !!
-!
-!! Plot ranges defined in WeedsPy.py
-!cl
-!pen /w 3 /col 0
-!box
-!greg\draw t -2 2 "Intensity (K)" 4 90 /box 4
-!
-!! Original spectrum
-!retrieve OBS		
-!spectrum
-!
-!pen /w 3 /col 1 /dash 1 ! Red pen
-!
-!! Synthetic spectrum
-!retrieve TB_MODEL
-!spectrum
-!
-!! Save
-!!hard figfiles/i'pixi'_j'pixj'_model.eps /dev eps color /over

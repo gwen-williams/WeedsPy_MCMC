@@ -561,8 +561,8 @@ if __name__ == '__main__':
     # Number of parameters to fit:
     n_dim = len(initial)
     
-    # Set the value of the parameters that will NOT be modelled with emcee:
-    # If you won't be modelling them, set them to None
+    # Set the value of some of the model parameters:
+    # If they are free parameters, set them to None. If they are fixed parameters, give them a value.
     source_size = float(params['source_size'])
     vel_sys = None
     vel_width = None
