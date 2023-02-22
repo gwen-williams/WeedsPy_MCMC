@@ -2,7 +2,7 @@
 #                               WeedsPy_MCMC.py                               #
 #                     Author: Dr. Gwenllian M. Williams                       #       
 # =============================================================================
-# Uses emcee to explore parameters of synthetic spectra created by WeedsPy.py #
+# Uses emcee to explore parameters of synthetic spectra created by WeedsPy_MCMC.class #
 # =============================================================================
 import os
 import numpy as np
@@ -441,8 +441,6 @@ class WeedsPy_MCMC:
         for i in range(self.n_dim):
             # Plot the chain traces
             axsf[i].plot(samples[:,:,i],"k",alpha=0.4)
-            # Plot vertical line denoting the end of the burn-in
-            axsf[i].axvline(self.n_burn,np.min(samples[:,:,i]),np.max(samples[:,:,i]),linestyle='--',color='#bbbbbb')
             # General params
             axsf[i].set_xlim(0,len(samples))
             axsf[i].set_ylabel(labels[i])
